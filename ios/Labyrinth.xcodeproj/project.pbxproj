@@ -317,6 +317,7 @@
 				1D60588D0D05DD3D006BFB54 /* Resources */,
 				1D60588E0D05DD3D006BFB54 /* Sources */,
 				1D60588F0D05DD3D006BFB54 /* Frameworks */,
+				A18257DF1608F177001E9D38 /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -431,6 +432,19 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "touch -cm ${PROJECT_DIR}/www";
+		};
+		A18257DF1608F177001E9D38 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "rsync -pvtrlL --cvs-exclude \\\n$PROJECT_DIR/www* \\\n$BUILT_PRODUCTS_DIR/$CONTENTS_FOLDER_PATH";
 		};
 /* End PBXShellScriptBuildPhase section */
 
