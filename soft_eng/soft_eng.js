@@ -3,70 +3,148 @@ goog.provide('soft_eng');
 
 
 //get requirements
-goog.require('lime.Director');
-goog.require('lime.Scene');
-goog.require('lime.Layer');
+goog.require('box2d.BodyDef');
+goog.require('box2d.BoxDef');
+goog.require('box2d.CircleDef');
+goog.require('box2d.CircleShape');
+goog.require('box2d.PolyDef');
+goog.require('box2d.Vec2');
+goog.require('box2d.JointDef');
+goog.require('box2d.MouseJointDef');
+goog.require('box2d.World');
+
+goog.require('lime');
 goog.require('lime.Circle');
-goog.require('lime.Label');
-goog.require('lime.animation.Spawn');
-goog.require('lime.animation.FadeTo');
-goog.require('lime.animation.ScaleTo');
-goog.require('lime.animation.MoveTo');
+goog.require('lime.CoverNode');
+goog.require('lime.Director');
+goog.require('lime.Layer');
+goog.require('lime.Scene');
+goog.require('lime.fill.LinearGradient');
+
+
+soft_eng.WIDTH = 320;
+soft_eng.HEIGHT = 460;
 
 
 // entrypoint
 soft_eng.start = function(){
 
-	var director = new lime.Director(document.body,1024,768),
-	    scene = new lime.Scene(),
+    /*
 
-	    target = new lime.Layer().setPosition(512,384),
-        circle = new lime.Circle().setSize(150,150).setFill(255,150,0),
-        lbl = new lime.Label().setSize(160,50).setFontSize(30).setText('TOUCH ME!'),
-        title = new lime.Label().setSize(800,70).setFontSize(60).setText('Now move me around!')
-            .setOpacity(0).setPosition(512,80).setFontColor('#999').setFill(200,100,0,.1);
+    There is no box2d integration in LimeJS yet. This file only
+    shows that box2d is in correct path.
+
+    */
+
+	//director
+	soft_eng.director = new lime.Director(document.body, soft_eng.WIDTH, soft_eng.HEIGHT);
+	soft_eng.director.makeMobileWebAppCapable();
+
+	var gamescene = new lime.Scene();
+
+	var layer = new lime.Layer;
+	layer.setPosition(0, 0);
+	gamescene.appendChild(layer);
+
+	// set active scene
+	soft_eng.director.replaceScene(gamescene);
+/*	
+    // new API proposal
+
+	var physics = new lime.Physics(layer).setGravity(0,10);
+	physics.world
+	
+	circle.enablePhysics(physics).setAngularDamping(.1).setDesity(.5);
+	circle.enablePhysics(physics,bodyDef);
+	
+	circle.getPhysicsBody();
+	
+	var phdata = new lime.PhysicsData(lime.ASSETS.filename);
+	var circle = phdata.createShape('icecream',physics).setPosition(100,0).setFill();
+	
+
+*/
+	
+
+	var gravity = new box2d.Vec2(0, 500);
+	var bounds = new box2d.AABB();
+	bounds.minVertex.Set(-soft_eng.WIDTH, -soft_eng.HEIGHT);
+	bounds.maxVertex.Set(2*soft_eng.WIDTH,2*soft_eng.HEIGHT);
+	var world = new box2d.World(bounds, gravity, false);
 
 
-    //add circle and label to target object
-    target.appendChild(circle);
-    target.appendChild(lbl);
+    var circle = (new lime.Circle)
+        .setFill(new lime.fill.LinearGradient().addColorStop(0.49,200,0,0).addColorStop(.5,0,0,250))
+	    .setSize(60, 60);
+    layer.appendChild(circle);
+	
+	
+	var cbodyDef = new box2d.BodyDef;
+	cbodyDef.position.Set(200, 0);
+    cbodyDef.angularDamping = .001;
 
-    //add target and title to the scene
-    scene.appendChild(target);
-    scene.appendChild(title);
+	var circleDef = new box2d.CircleDef;
+	circleDef.radius = circle.getSize().width/2;
+	circleDef.density = 1;
+	circleDef.restitution =.8;
+	circleDef.friction = 1;
+	
+	cbodyDef.AddShape(circleDef);
+	
 
-	director.makeMobileWebAppCapable();
+	var circle_body = world.CreateBody(cbodyDef);
 
-    //add some interaction
-    goog.events.listen(target,['mousedown','touchstart'],function(e){
+    var ground = new box2d.BoxDef;
+	ground.restitution = .9
+	ground.density = 0;
+	ground.friction = 1;
+	ground.extents.Set(320, 10);//box version
+    //ground.SetVertices([[-30,-5],[30,-10],[30,10],[-30,10]]); // actually not a box
+    
+    var gbodyDef = new box2d.BodyDef;
+    gbodyDef.position.Set(0, 450);
+    gbodyDef.rotation = 0.00;
+    gbodyDef.AddShape(ground);
+    var ground_body = world.CreateBody(gbodyDef);
 
-        //animate
-        target.runAction(new lime.animation.Spawn(
-            new lime.animation.FadeTo(.5).setDuration(.2),
-            new lime.animation.ScaleTo(1.5).setDuration(.8)
-        ));
-
-        title.runAction(new lime.animation.FadeTo(1));
-
-        //let target follow the mouse/finger
-        e.startDrag();
-
-        //listen for end event
-        e.swallow(['mouseup','touchend'],function(){
-            target.runAction(new lime.animation.Spawn(
-                new lime.animation.FadeTo(1),
-                new lime.animation.ScaleTo(1),
-                new lime.animation.MoveTo(512,384)
-            ));
-
-            title.runAction(new lime.animation.FadeTo(0));
+    var box = (new lime.Sprite)
+        .setFill(0,100,0)
+	    .setSize(320, 20);
+    layer.appendChild(box);
+    
+    goog.events.listen(circle , ['touchstart', 'mousedown'],function(e){ 
+        var pos = layer.screenToLocal(e.screenPosition);
+        //create mouse Joint 
+        var mouseJointDef = new box2d.MouseJointDef(); 
+        mouseJointDef.body1 = world.GetGroundBody(); 
+        mouseJointDef.body2 = circle_body; 
+        mouseJointDef.target.Set(pos.x, pos.y); 
+        mouseJointDef.maxForce = 5000 * circle_body.m_mass; 
+        mouseJointDef.collideConnected = true; 
+        mouseJointDef.dampingRatio = 0; 
+        mouseJointDef.frequencyHz = 100; 
+        //Add the mouseJoint to the world. 
+        var mouseJoint = world.CreateJoint(mouseJointDef); 
+        e.swallow(['touchend', 'mouseup'],function(e){
+            world.DestroyJoint(mouseJoint); 
         });
-
-
+        e.swallow(['mousemove', 'touchmove'],function(e){
+            var pos = layer.screenToLocal(e.screenPosition);
+            mouseJoint.SetTarget(new box2d.Vec2(pos.x, pos.y));
+        });
     });
 
-	// set current scene active
-	director.replaceScene(scene);
+    lime.scheduleManager.schedule(function(dt) {
+        world.Step(dt / 1000, 3);
+        var pos = circle_body.GetCenterPosition().clone();
+        var rot = circle_body.GetRotation();
+        circle.setRotation(-rot/Math.PI*180);
+        circle.setPosition(pos);
+        var pos = ground_body.GetCenterPosition().clone();
+        var rot = ground_body.GetRotation();
+        box.setRotation(-rot/Math.PI*180);
+        box.setPosition(pos);
+    },this);
 
 }
 
