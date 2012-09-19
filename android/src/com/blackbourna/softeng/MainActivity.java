@@ -11,6 +11,7 @@ public class MainActivity extends DroidGap {
         super.onCreate(savedInstanceState);
         //setContentView(R.layout.activity_main);
         super.loadUrl("file:///android_asset/www/soft_eng.html");
+        
     }
 
     @Override
