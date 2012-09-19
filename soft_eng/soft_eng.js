@@ -72,44 +72,45 @@ soft_eng.start = function(){
 	bounds.maxVertex.Set(2*soft_eng.WIDTH,2*soft_eng.HEIGHT);
 	var world = new box2d.World(bounds, gravity, false);
 
-
+	// circle sprite
     var circle = (new lime.Circle)
         .setFill(new lime.fill.LinearGradient().addColorStop(0.49,200,0,0).addColorStop(.5,0,0,250))
-	    .setSize(60, 60);
+	    .setSize(30, 30);
     layer.appendChild(circle);
 	
-	
-	var cbodyDef = new box2d.BodyDef;
-	cbodyDef.position.Set(200, 0);
-    cbodyDef.angularDamping = .001;
 
+	// another ? circle sprite
 	var circleDef = new box2d.CircleDef;
 	circleDef.radius = circle.getSize().width/2;
 	circleDef.density = 1;
 	circleDef.restitution =.8;
 	circleDef.friction = 1;
+	// circle object
+	var cbodyDef = new box2d.BodyDef;
+	cbodyDef.position.Set( soft_eng.WIDTH/2, soft_eng.HEIGHT/2 );
+    cbodyDef.angularDamping = .001;
 	
 	cbodyDef.AddShape(circleDef);
-	
-
 	var circle_body = world.CreateBody(cbodyDef);
 
+	// ground sprite
     var ground = new box2d.BoxDef;
 	ground.restitution = .9
 	ground.density = 0;
 	ground.friction = 1;
-	ground.extents.Set(320, 10);//box version
+	ground.extents.Set(160, 5); // so it looks like we are supposed to set half the value? it'll be interpreted sa 320x10..
     //ground.SetVertices([[-30,-5],[30,-10],[30,10],[-30,10]]); // actually not a box
-    
+    // ground object
     var gbodyDef = new box2d.BodyDef;
-    gbodyDef.position.Set(0, 450);
+    gbodyDef.position.Set(160, 450);
     gbodyDef.rotation = 0.00;
+	
     gbodyDef.AddShape(ground);
     var ground_body = world.CreateBody(gbodyDef);
 
     var box = (new lime.Sprite)
         .setFill(0,100,0)
-	    .setSize(320, 20);
+	    .setSize(320, 10);
     layer.appendChild(box);
     
     goog.events.listen(circle , ['touchstart', 'mousedown'],function(e){ 
