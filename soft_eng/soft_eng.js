@@ -102,7 +102,7 @@ soft_eng.start = function(){
     //ground.SetVertices([[-30,-5],[30,-10],[30,10],[-30,10]]); // actually not a box
     // ground object
     var gbodyDef = new box2d.BodyDef;
-    gbodyDef.position.Set(160, 450);
+    gbodyDef.position.Set(160, 455); // it puts the 'center' of the object in the x,y corrdinate you provide here
     gbodyDef.rotation = 0.00;
 	
     gbodyDef.AddShape(ground);
