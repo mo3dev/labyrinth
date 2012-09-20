@@ -90,11 +90,11 @@ soft_eng.start = function(){
 	soft_eng.director.replaceScene(gamescene);
 
 	//debugging labels
-	var xLabel = new lime.Label('x: ').setAnchorPoint(0, 0).setPosition(0, 0);
-	var yLabel = new lime.Label('y: ').setAnchorPoint(0, 0).setPosition(0, 20);
-	var zLabel = new lime.Label('z: ').setAnchorPoint(0, 0).setPosition(0, 40);
-	var b2Label1 = new lime.Label('dt: ').setAnchorPoint(0, 0).setPosition(0, 60);
-	var b2Label2 = new lime.Label('dt: ').setAnchorPoint(0, 0).setPosition(0, 80);
+	var xLabel = new lime.Label('x: ').setAnchorPoint(0, 0).setPosition(20, 0);
+	var yLabel = new lime.Label('y: ').setAnchorPoint(0, 0).setPosition(20, 20);
+	var zLabel = new lime.Label('z: ').setAnchorPoint(0, 0).setPosition(20, 40);
+	var b2Label1 = new lime.Label('dt: ').setAnchorPoint(0, 0).setPosition(20, 60);
+	var b2Label2 = new lime.Label('dt: ').setAnchorPoint(0, 0).setPosition(20, 80);
 	gamescene.appendChild(xLabel);
 	gamescene.appendChild(yLabel);
 	gamescene.appendChild(zLabel);
@@ -108,56 +108,120 @@ soft_eng.start = function(){
 		bounds.maxVertex.Set(2*soft_eng.WIDTH,2*soft_eng.HEIGHT);
 		var world = new box2d.World(bounds, gravity, false);
 
-		// circle sprite
-		var circle = (new lime.Circle)
+
+		// ball Sprite (lime)
+		var ballSprite = (new lime.Circle)
 			.setFill(new lime.fill.LinearGradient().addColorStop(0.49,200,0,0).addColorStop(.5,0,0,250))
 			.setSize(30, 30);
-		layer.appendChild(circle);
-		
+		layer.appendChild(ballSprite);
+		// ballCircle Object (box2d)
+		var ballCircle = new box2d.CircleDef;
+		ballCircle.radius = ballSprite.getSize().width/2;
+		ballCircle.density = 5;
+		ballCircle.restitution =.5;
+		ballCircle.friction = 1;
+		// ballBody Object (box2d)
+		var ballBody = new box2d.BodyDef;
+		ballBody.position.Set( soft_eng.WIDTH/2, soft_eng.HEIGHT/2 );
+		ballBody.angularDamping = .001;
+		ballBody.AddShape(ballCircle);
+		// add ball objects to world
+		var ball_body = world.CreateBody(ballBody);
 
-		// another ? circle sprite
-		var circleDef = new box2d.CircleDef;
-		circleDef.radius = circle.getSize().width/2;
-		circleDef.density = 1;
-		circleDef.restitution =.5;
-		circleDef.friction = 1;
-		// circle object
-		var cbodyDef = new box2d.BodyDef;
-		cbodyDef.position.Set( soft_eng.WIDTH/2, soft_eng.HEIGHT/2 );
-		cbodyDef.angularDamping = .001;
-		
-		cbodyDef.AddShape(circleDef);
-		var circle_body = world.CreateBody(cbodyDef);
 
-		// ground sprite
-		var ground = new box2d.BoxDef;
-		ground.restitution = 0.5;
-		ground.density = 0;
-		ground.friction = 1;
-		ground.extents.Set(160, 5); // so it looks like we are supposed to set half the value? it'll be interpreted sa 320x10..
-		//ground.SetVertices([[-30,-5],[30,-10],[30,10],[-30,10]]); // actually not a box
-		// ground object
-		var gbodyDef = new box2d.BodyDef;
-		// not sure about this->limejs sprites are also anchored at the center (NOT top left), so we may need to look into this
-		gbodyDef.position.Set(160, 455); // it puts the 'center' of the object in the x,y corrdinate you provide here
-		gbodyDef.rotation = 0.00;
-		
-		gbodyDef.AddShape(ground);
-		var ground_body = world.CreateBody(gbodyDef);
-
-		var box = (new lime.Sprite)
+		// ground Sprite (lime)
+		var groundSprite = (new lime.Sprite)
 			.setFill(0,100,0)
-			.setSize(320, 10);
-		layer.appendChild(box);
+			.setSize(320, 20);
+		layer.appendChild(groundSprite);
+		// groundBox Object (box2d)
+		var groundBox = new box2d.BoxDef;
+		groundBox.restitution = 0;
+		groundBox.density = 0;
+		groundBox.friction = 1;
+		groundBox.extents.Set(160, 10); // so it looks like we are supposed to set half the value? it'll be interpreted sa 320x10..
+		// groundBody Object (box2d)
+		var groundBody = new box2d.BodyDef;
+		// not sure about this->limejs sprites are also anchored at the center (NOT top left), so we may need to look into this
+		groundBody.position.Set(160, 450); // it puts the 'center' of the object in the x,y corrdinate you provide here
+		groundBody.rotation = 0.00;
+		groundBody.AddShape(groundBox);
+		// add ground objects to world
+		var ground_body = world.CreateBody(groundBody);
 		
-		goog.events.listen(circle , ['touchstart', 'mousedown'],function(e){ 
+		
+		// ceiling Sprite (lime)
+		var ceilingSprite = (new lime.Sprite)
+			.setFill(0,100,0)
+			.setSize(320, 20);
+		layer.appendChild(ceilingSprite);
+		// ceilingBox Object (box2d)
+		var ceilingBox = new box2d.BoxDef;
+		ceilingBox.restitution = 0;
+		ceilingBox.density = 0;
+		ceilingBox.friction = 1;
+		ceilingBox.extents.Set(160, 10); // so it looks like we are supposed to set half the value? it'll be interpreted sa 320x10..
+		// ceilingBody Object (box2d)
+		var ceilingBody = new box2d.BodyDef;
+		// not sure about this->limejs sprites are also anchored at the center (NOT top left), so we may need to look into this
+		ceilingBody.position.Set(160, 10); // it puts the 'center' of the object in the x,y corrdinate you provide here
+		ceilingBody.rotation = 0.00;
+		ceilingBody.AddShape(ceilingBox);
+		// add ceiling objects to world
+		var ceiling_body = world.CreateBody(ceilingBody);
+		
+		
+		// rightWall Sprite (lime)
+		var rightWallSprite = (new lime.Sprite)
+			.setFill(0,100,0)
+			.setSize(20, 460);
+		layer.appendChild(rightWallSprite);
+		// rightWall Object (box2d)
+		var rightWallBox = new box2d.BoxDef;
+		rightWallBox.restitution = 0;
+		rightWallBox.density = 0;
+		rightWallBox.friction = 1;
+		rightWallBox.extents.Set(10, 230); // so it looks like we are supposed to set half the value? it'll be interpreted sa 320x10..
+		// rightWall Object (box2d)
+		var rightWallBody = new box2d.BodyDef;
+		// not sure about this->limejs sprites are also anchored at the center (NOT top left), so we may need to look into this
+		rightWallBody.position.Set(310, 230); // it puts the 'center' of the object in the x,y corrdinate you provide here
+		rightWallBody.rotation = 0.00;
+		rightWallBody.AddShape(rightWallBox);
+		// add rightWall objects to world
+		var rightWall_body = world.CreateBody(rightWallBody);
+		
+		
+		// leftWall Sprite (lime)
+		var leftWallSprite = (new lime.Sprite)
+			.setFill(0,100,0)
+			.setSize(20, 460);
+		layer.appendChild(leftWallSprite);
+		// leftWall Object (box2d)
+		var leftWallBox = new box2d.BoxDef;
+		leftWallBox.restitution = 0;
+		leftWallBox.density = 0;
+		leftWallBox.friction = 1;
+		leftWallBox.extents.Set(10, 230); // so it looks like we are supposed to set half the value? it'll be interpreted sa 320x10..
+		// leftWall Object (box2d)
+		var leftWallBody = new box2d.BodyDef;
+		// not sure about this->limejs sprites are also anchored at the center (NOT top left), so we may need to look into this
+		leftWallBody.position.Set(10, 230); // it puts the 'center' of the object in the x,y corrdinate you provide here
+		leftWallBody.rotation = 0.00;
+		leftWallBody.AddShape(leftWallBox);
+		// add rightWall objects to world
+		var leftWall_body = world.CreateBody(leftWallBody);
+		
+		
+		// listen to touch/mouse events
+		goog.events.listen(ballSprite , ['touchstart', 'mousedown'],function(e){ 
 			var pos = layer.screenToLocal(e.screenPosition);
 			//create mouse Joint 
 			var mouseJointDef = new box2d.MouseJointDef(); 
 			mouseJointDef.body1 = world.GetGroundBody(); 
-			mouseJointDef.body2 = circle_body; 
+			mouseJointDef.body2 = ball_body; 
 			mouseJointDef.target.Set(pos.x, pos.y); 
-			mouseJointDef.maxForce = 5000 * circle_body.m_mass; 
+			mouseJointDef.maxForce = 5000 * ball_body.m_mass; 
 			mouseJointDef.collideConnected = true; 
 			mouseJointDef.dampingRatio = 0; 
 			mouseJointDef.frequencyHz = 100; 
@@ -174,17 +238,28 @@ soft_eng.start = function(){
 
 		lime.scheduleManager.schedule(function(dt) {
 			world.Step(dt / 1000, 3);
-			var cPos = circle_body.GetCenterPosition().clone();
-			//var rot = circle_body.GetRotation();
-			//circle.setRotation(-rot/Math.PI*180);
-			circle.setPosition(cPos);
-			var gPos = ground_body.GetCenterPosition().clone();
-			//var rot = ground_body.GetRotation();
-			//box.setRotation(-rot/Math.PI*180);
-			box.setPosition(gPos);
+			// attach ball sprite to ball body
+			var ballPos = ball_body.GetCenterPosition().clone();
+			ballSprite.setPosition(ballPos);
 			
-			b2Label1.setText('dt:' + dt + " cPos.x = " + cPos.x + " cPos.y = " + cPos.y);
-			b2Label2.setText(" gPos.x = " + gPos.x + " gPos.y = " + gPos.y);
+			// attach ground sprite to ground body
+			var groundPos = ground_body.GetCenterPosition().clone();
+			groundSprite.setPosition(groundPos);
+			
+			// attach ceiling sprite to ceiling body
+			var ceilingPos = ceiling_body.GetCenterPosition().clone();
+			ceilingSprite.setPosition(ceilingPos);
+			
+			// attach rightWall sprite to rightWall body
+			var rightWallPos = rightWall_body.GetCenterPosition().clone();
+			rightWallSprite.setPosition(rightWallPos);
+			
+			// attach leftWall sprite to leftWall body
+			var leftWallPos = leftWall_body.GetCenterPosition().clone();
+			leftWallSprite.setPosition(leftWallPos);
+			
+			b2Label1.setText('dt:' + dt + " bPos.x = " + ballPos.x + " bPos.y = " + ballPos.y);
+			b2Label2.setText(" gPos.x = " + groundPos.x + " gPos.y = " + groundPos.y);
 		}, this);
 	}
 }
