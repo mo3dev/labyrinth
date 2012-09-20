@@ -46,7 +46,7 @@ soft_eng.start = function(){
     //
     function startWatch() {
 
-        // Update acceleration every 3 seconds
+        // Update acceleration every .25 seconds
         var options = { frequency: 250 };
 
         watchID = navigator.accelerometer.watchAcceleration(onAccelerometerSuccess, onAccelerometerError, options);
@@ -67,6 +67,8 @@ soft_eng.start = function(){
        xLabel.setText('x: ' + acceleration.x); 
        yLabel.setText('y: ' + acceleration.y); 
        zLabel.setText('z: ' + acceleration.z); 
+       xGrav = acceleration.x * 10.0;
+       yGrav = acceleration.y * 10.0;
     }
 
     // onError: Failed to get the acceleration
@@ -94,20 +96,23 @@ soft_eng.start = function(){
 	var yLabel = new lime.Label('y: ').setAnchorPoint(0, 0).setPosition(20, 20);
 	var zLabel = new lime.Label('z: ').setAnchorPoint(0, 0).setPosition(20, 40);
 	var b2Label1 = new lime.Label('dt: ').setAnchorPoint(0, 0).setPosition(20, 60);
-	var b2Label2 = new lime.Label('dt: ').setAnchorPoint(0, 0).setPosition(20, 80);
+	var b2Label2 = new lime.Label(': ').setAnchorPoint(0, 0).setPosition(20, 80);
 	gamescene.appendChild(xLabel);
 	gamescene.appendChild(yLabel);
 	gamescene.appendChild(zLabel);
 	gamescene.appendChild(b2Label1);
 	gamescene.appendChild(b2Label2);
 	
+	var world = null;
+	var xGrav = null;
+	var yGrav = null;
+	
 	function initGame() {
-		var gravity = new box2d.Vec2(0, 500);
+		var gravity = new box2d.Vec2(0, 200);
 		var bounds = new box2d.AABB();
 		bounds.minVertex.Set(-soft_eng.WIDTH, -soft_eng.HEIGHT);
 		bounds.maxVertex.Set(2*soft_eng.WIDTH,2*soft_eng.HEIGHT);
-		var world = new box2d.World(bounds, gravity, false);
-
+		world = new box2d.World(bounds, gravity, false);
 
 		// ball Sprite (lime)
 		var ballSprite = (new lime.Circle)
@@ -117,13 +122,13 @@ soft_eng.start = function(){
 		// ballCircle Object (box2d)
 		var ballCircle = new box2d.CircleDef;
 		ballCircle.radius = ballSprite.getSize().width/2;
-		ballCircle.density = 5;
+		ballCircle.density = 1;
 		ballCircle.restitution =.5;
 		ballCircle.friction = 1;
 		// ballBody Object (box2d)
 		var ballBody = new box2d.BodyDef;
 		ballBody.position.Set( soft_eng.WIDTH/2, soft_eng.HEIGHT/2 );
-		ballBody.angularDamping = .001;
+		//ballBody.angularDamping = .001;
 		ballBody.AddShape(ballCircle);
 		// add ball objects to world
 		var ball_body = world.CreateBody(ballBody);
@@ -141,10 +146,10 @@ soft_eng.start = function(){
 		groundBox.friction = 1;
 		groundBox.extents.Set(160, 10); // so it looks like we are supposed to set half the value? it'll be interpreted sa 320x10..
 		// groundBody Object (box2d)
-		var groundBody = new box2d.BodyDef;
+		var groundBody = new box2d.BodyDef();
 		// not sure about this->limejs sprites are also anchored at the center (NOT top left), so we may need to look into this
 		groundBody.position.Set(160, 450); // it puts the 'center' of the object in the x,y corrdinate you provide here
-		groundBody.rotation = 0.00;
+		groundBody.rotation = 0.0;
 		groundBody.AddShape(groundBox);
 		// add ground objects to world
 		var ground_body = world.CreateBody(groundBody);
@@ -237,7 +242,12 @@ soft_eng.start = function(){
 		});
 
 		lime.scheduleManager.schedule(function(dt) {
+			//world.Step(dt / 1000, 3);
+			if(dt>100) dt=100; // long delays(after pause) cause false collisions
 			world.Step(dt / 1000, 3);
+			if (xGrav)
+				world.m_gravity = new goog.math.Vec2(xGrav, yGrav);
+			
 			// attach ball sprite to ball body
 			var ballPos = ball_body.GetCenterPosition().clone();
 			ballSprite.setPosition(ballPos);
