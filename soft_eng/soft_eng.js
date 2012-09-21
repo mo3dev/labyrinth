@@ -47,7 +47,7 @@ soft_eng.start = function(){
     function startWatch() {
 
         // Update acceleration every .25 seconds
-        var options = { frequency: 250 };
+        var options = { frequency: 40 };
 
         watchID = navigator.accelerometer.watchAcceleration(onAccelerometerSuccess, onAccelerometerError, options);
     }
@@ -67,8 +67,8 @@ soft_eng.start = function(){
        xLabel.setText('x: ' + acceleration.x); 
        yLabel.setText('y: ' + acceleration.y); 
        zLabel.setText('z: ' + acceleration.z); 
-       xGrav = acceleration.x * 10.0;
-       yGrav = acceleration.y * 10.0;
+       xGrav = acceleration.x * -5000.0;
+       yGrav = acceleration.y * 5000.0;
     }
 
     // onError: Failed to get the acceleration
@@ -92,23 +92,24 @@ soft_eng.start = function(){
 	soft_eng.director.replaceScene(gamescene);
 
 	//debugging labels
-	var xLabel = new lime.Label('x: ').setAnchorPoint(0, 0).setPosition(20, 0);
-	var yLabel = new lime.Label('y: ').setAnchorPoint(0, 0).setPosition(20, 20);
-	var zLabel = new lime.Label('z: ').setAnchorPoint(0, 0).setPosition(20, 40);
-	var b2Label1 = new lime.Label('dt: ').setAnchorPoint(0, 0).setPosition(20, 60);
-	var b2Label2 = new lime.Label(': ').setAnchorPoint(0, 0).setPosition(20, 80);
+	var xLabel = new lime.Label('x: ').setAnchorPoint(0, 0).setPosition(20, 20);
+	var yLabel = new lime.Label('y: ').setAnchorPoint(0, 0).setPosition(20, 40);
+	var zLabel = new lime.Label('z: ').setAnchorPoint(0, 0).setPosition(20, 60);
+	var b2Label1 = new lime.Label('dt: ').setAnchorPoint(0, 0).setPosition(20, 80);
+	var b2Label2 = new lime.Label(': ').setAnchorPoint(0, 0).setPosition(20, 100);
 	gamescene.appendChild(xLabel);
 	gamescene.appendChild(yLabel);
 	gamescene.appendChild(zLabel);
 	gamescene.appendChild(b2Label1);
 	gamescene.appendChild(b2Label2);
+
 	
 	var world = null;
 	var xGrav = null;
 	var yGrav = null;
 	
 	function initGame() {
-		var gravity = new box2d.Vec2(0, 200);
+		var gravity = new box2d.Vec2(0, 0);
 		var bounds = new box2d.AABB();
 		bounds.minVertex.Set(-soft_eng.WIDTH, -soft_eng.HEIGHT);
 		bounds.maxVertex.Set(2*soft_eng.WIDTH,2*soft_eng.HEIGHT);
@@ -123,7 +124,7 @@ soft_eng.start = function(){
 		var ballCircle = new box2d.CircleDef;
 		ballCircle.radius = ballSprite.getSize().width/2;
 		ballCircle.density = 1;
-		ballCircle.restitution =.5;
+		ballCircle.restitution = 0.2;
 		ballCircle.friction = 1;
 		// ballBody Object (box2d)
 		var ballBody = new box2d.BodyDef;
@@ -242,11 +243,16 @@ soft_eng.start = function(){
 		});
 
 		lime.scheduleManager.schedule(function(dt) {
-			//world.Step(dt / 1000, 3);
-			if(dt>100) dt=100; // long delays(after pause) cause false collisions
 			world.Step(dt / 1000, 3);
-			if (xGrav)
-				world.m_gravity = new goog.math.Vec2(xGrav, yGrav);
+			//if(dt>100) dt=100; // long delays(after pause) cause false collisions
+			//world.Step(dt / 1000, 3);
+			
+			if (xGrav) {
+				//world.m_gravity = new goog.math.Vec2(xGrav, yGrav);
+				var force = new box2d.Vec2(xGrav, yGrav);
+				var point = ball_body.GetWorldPoint(ball_body.GetCenterPosition().clone());
+				ball_body.ApplyForce(force, point);
+			}
 			
 			// attach ball sprite to ball body
 			var ballPos = ball_body.GetCenterPosition().clone();
