@@ -1,34 +1,8 @@
-//set main namespace
-goog.provide('soft_eng');
-
-
-//get requirements
-goog.require('box2d.BodyDef');
-goog.require('box2d.BoxDef');
-goog.require('box2d.CircleDef');
-goog.require('box2d.CircleShape');
-goog.require('box2d.PolyDef');
-goog.require('box2d.Vec2');
-goog.require('box2d.JointDef');
-goog.require('box2d.MouseJointDef');
-goog.require('box2d.World');
-
-goog.require('lime');
-goog.require('lime.Circle');
-goog.require('lime.CoverNode');
-goog.require('lime.Director');
-goog.require('lime.Layer');
-goog.require('lime.Scene');
-goog.require('lime.fill.LinearGradient');
-goog.require('lime.Label');
-
-
-soft_eng.WIDTH = 320;
-soft_eng.HEIGHT = 460;
-
-
+goog.provoide('Game');
+Game.WIDTH = 320;
+Game.HEIGHT = 460;
 // entrypoint
-soft_eng.start = function(){
+Game.start = function(){
 	// The watch id references the current `watchAcceleration`
 	var watchID = null;
 	// Wait for PhoneGap to load
@@ -77,19 +51,11 @@ soft_eng.start = function(){
         alert('onError!');
     }
 
-
-	//director
-	soft_eng.director = new lime.Director(document.body, soft_eng.WIDTH, soft_eng.HEIGHT);
-	soft_eng.director.makeMobileWebAppCapable();
-
-	var gamescene = new lime.Scene();
+	var scene = new lime.Scene();
 
 	var layer = new lime.Layer;
 	layer.setPosition(0, 0);
-	gamescene.appendChild(layer);
-
-	// set active scene
-	soft_eng.director.replaceScene(gamescene);
+	scene.appendChild(layer);
 
 	//debugging labels
 	var xLabel = new lime.Label('x: ').setAnchorPoint(0, 0).setPosition(20, 20);
@@ -97,11 +63,11 @@ soft_eng.start = function(){
 	var zLabel = new lime.Label('z: ').setAnchorPoint(0, 0).setPosition(20, 60);
 	var b2Label1 = new lime.Label('dt: ').setAnchorPoint(0, 0).setPosition(20, 80);
 	var b2Label2 = new lime.Label(': ').setAnchorPoint(0, 0).setPosition(20, 100);
-	gamescene.appendChild(xLabel);
-	gamescene.appendChild(yLabel);
-	gamescene.appendChild(zLabel);
-	gamescene.appendChild(b2Label1);
-	gamescene.appendChild(b2Label2);
+	scene.appendChild(xLabel);
+	scene.appendChild(yLabel);
+	scene.appendChild(zLabel);
+	scene.appendChild(b2Label1);
+	scene.appendChild(b2Label2);
 
 	
 	var world = null;
@@ -111,8 +77,8 @@ soft_eng.start = function(){
 	function initGame() {
 		var gravity = new box2d.Vec2(0, 0);
 		var bounds = new box2d.AABB();
-		bounds.minVertex.Set(-soft_eng.WIDTH, -soft_eng.HEIGHT);
-		bounds.maxVertex.Set(2*soft_eng.WIDTH,2*soft_eng.HEIGHT);
+		bounds.minVertex.Set(-Game.WIDTH, -Game.HEIGHT);
+		bounds.maxVertex.Set(2*Game.WIDTH,2*Game.HEIGHT);
 		world = new box2d.World(bounds, gravity, false);
 
 		// ball Sprite (lime)
@@ -121,19 +87,7 @@ soft_eng.start = function(){
 			.setSize(30, 30);
 		layer.appendChild(ballSprite);
 		// ballCircle Object (box2d)
-		var ballCircle = new box2d.CircleDef;
-		ballCircle.radius = ballSprite.getSize().width/2;
-		ballCircle.density = 1;
-		ballCircle.restitution = 0.2;
-		ballCircle.friction = 1;
-		// ballBody Object (box2d)
-		var ballBody = new box2d.BodyDef;
-		ballBody.position.Set( soft_eng.WIDTH/2, soft_eng.HEIGHT/2 );
-		//ballBody.angularDamping = .001;
-		ballBody.AddShape(ballCircle);
-		// add ball objects to world
-		var ball_body = world.CreateBody(ballBody);
-
+        var ball = new Ball(Game, world);
 
 		// ground Sprite (lime)
 		var groundSprite = (new lime.Sprite)
@@ -250,12 +204,12 @@ soft_eng.start = function(){
 			if (xGrav) {
 				//world.m_gravity = new goog.math.Vec2(xGrav, yGrav);
 				var force = new box2d.Vec2(xGrav, yGrav);
-				var point = ball_body.GetWorldPoint(ball_body.GetCenterPosition().clone());
-				ball_body.ApplyForce(force, point);
+				var point = ball.getBody().GetWorldPoint(ball.getBody().GetCenterPosition().clone());
+				ball.getBody().ApplyForce(force, point);
 			}
 			
 			// attach ball sprite to ball body
-			var ballPos = ball_body.GetCenterPosition().clone();
+			var ballPos = ball.getBody.GetCenterPosition().clone();
 			ballSprite.setPosition(ballPos);
 			
 			// attach ground sprite to ground body
@@ -278,8 +232,5 @@ soft_eng.start = function(){
 			b2Label2.setText(" gPos.x = " + groundPos.x + " gPos.y = " + groundPos.y);
 		}, this);
 	}
+    return scene
 }
-
-
-//this is required for outside access after code is compiled in ADVANCED_COMPILATIONS mode
-goog.exportSymbol('soft_eng.start', soft_eng.start);
