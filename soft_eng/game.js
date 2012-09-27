@@ -1,4 +1,4 @@
-goog.provoide('Game');
+goog.provide('Game');
 Game.WIDTH = 320;
 Game.HEIGHT = 460;
 // entrypoint
