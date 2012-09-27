@@ -45,7 +45,6 @@ soft_eng.start = function(){
 	soft_eng.loadMainMenu();
 }
 
-
 // load main menu scene
 soft_eng.loadMainMenu = function() {
 	// load the main menu
@@ -77,7 +76,6 @@ soft_eng.loadMainMenu = function() {
 	});
 	buttonsLayer.appendChild(helpButton);
 	
-	
 	// add the layer to the scene and view scene
 	scene.appendChild(layer);
 	
@@ -92,7 +90,6 @@ soft_eng.newGame = function() {
     var scene = new soft_eng.Game(size);
 	soft_eng.director.replaceScene(scene, lime.transitions.Dissolve);
 };
-
 
 // helper for same size buttons
 soft_eng.makeButton = function(text) {
