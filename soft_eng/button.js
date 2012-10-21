@@ -26,7 +26,7 @@ soft_eng.Button.prototype.makeState_ = function() {
     var state = new lime.RoundedRect().setFill('#fff').setRadius(7);
     state.inner = new lime.RoundedRect().setRadius(7);
     state.label = new lime.Label().setAlign('center').
-        setFontFamily('"Trebuchet MS"').setFontColor('#eef').setFontSize(20);
+        setFontFamily('"Trebuchet MS"').setFontColor('#eef').setFontSize(18);
 
     state.appendChild(state.inner);
     state.inner.appendChild(state.label);

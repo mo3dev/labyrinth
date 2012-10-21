@@ -26,7 +26,7 @@ goog.require('lime.transitions.Dissolve');
 goog.require('soft_eng.Button');
 goog.require('soft_eng.Game');
 goog.require('soft_eng.Help');
-goog.require('soft_eng.Ball');
+
 
 
 // constants
@@ -35,8 +35,15 @@ soft_eng.WIDTH = 320 / soft_eng.SCALE;
 soft_eng.HEIGHT = 460 / soft_eng.SCALE;
 
 
-// entrypoint
-soft_eng.start = function(){
+// entrypoint, pre-flight checks..
+soft_eng.start = function() {
+	// check all requirements (accelerometer, etc...)
+	document.addEventListener("deviceready", soft_eng.setupGame, false);
+}
+
+// setup game
+soft_eng.setupGame = function() {
+	// setup the game, all preconditions are met (accelerometer, etc..)
 	// setup the director
 	soft_eng.director = new lime.Director(document.body, soft_eng.WIDTH, soft_eng.HEIGHT);
 	soft_eng.director.makeMobileWebAppCapable();
@@ -87,7 +94,7 @@ soft_eng.loadMainMenu = function() {
 // load new game scene
 soft_eng.newGame = function() {
 	alert('PLAY TIIIME');
-    var scene = new soft_eng.Game(size);
+    var scene = new soft_eng.Game();
 	soft_eng.director.replaceScene(scene, lime.transitions.Dissolve);
 };
 
