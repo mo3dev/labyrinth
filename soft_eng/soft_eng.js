@@ -3,7 +3,7 @@ goog.provide('soft_eng');
 
 
 //get requirements
-goog.require('box2d.BodyDef');
+/*goog.require('box2d.BodyDef');
 goog.require('box2d.BoxDef');
 goog.require('box2d.CircleDef');
 goog.require('box2d.CircleShape');
@@ -11,7 +11,7 @@ goog.require('box2d.PolyDef');
 goog.require('box2d.Vec2');
 goog.require('box2d.JointDef');
 goog.require('box2d.MouseJointDef');
-goog.require('box2d.World');
+goog.require('box2d.World');*/
 // lime
 goog.require('lime');
 goog.require('lime.Circle');
@@ -26,7 +26,6 @@ goog.require('lime.transitions.Dissolve');
 goog.require('soft_eng.Button');
 goog.require('soft_eng.Game');
 goog.require('soft_eng.Help');
-
 
 
 // constants
