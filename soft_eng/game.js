@@ -1,12 +1,15 @@
 goog.provide('soft_eng.Game');
 
 goog.require('soft_eng.Ball');
-goog.require('soft_eng.Wall');
-
-
+goog.require('soft_eng.Goal');
+goog.require('soft_eng.Trap');
+goog.require('soft_eng.Block');
 
 // entrypoint
 soft_eng.Game = function() {
+	
+	// maze object type enum
+	MazeEnum = Object.freeze( {"EMPTY": 0, "BALL": 1, "GOAL": 2, "TRAP": 3, "BLOCK": 4} );
 	
 	b2Vec2 = Box2D.Common.Math.b2Vec2;
 	b2BodyDef = Box2D.Dynamics.b2BodyDef;
@@ -20,7 +23,7 @@ soft_eng.Game = function() {
 	b2DebugDraw = Box2D.Dynamics.b2DebugDraw;
 	
 	// Start listening for Accelerometer, check it every 40ms
-	var options = { frequency: 40 };
+	var options = { frequency: 100 };
 	var watchID = navigator.accelerometer.watchAcceleration(onAccelerometerSuccess, onAccelerometerError, options);
 	
 	// onSuccess: Get a snapshot of the current acceleration
@@ -28,8 +31,8 @@ soft_eng.Game = function() {
 		xLabel.setText('x: ' + acceleration.x); 
 		yLabel.setText('y: ' + acceleration.y); 
 		zLabel.setText('z: ' + acceleration.z); 
-		xGrav = acceleration.x * -5000.0;
-		yGrav = acceleration.y * 5000.0;
+		xGrav = acceleration.x * -10.0;
+		yGrav = acceleration.y * 10.0;
 	}
 
 	// onError: Failed to get the acceleration
@@ -38,7 +41,6 @@ soft_eng.Game = function() {
 	}
 	
 	var scene = new lime.Scene();
-
 	var layer = new lime.Layer();
 	layer.setPosition(0, 0);
 	scene.appendChild(layer);
@@ -51,87 +53,110 @@ soft_eng.Game = function() {
 	scene.appendChild(yLabel);
 	scene.appendChild(zLabel);
 	
+	var world = null,
+		xGrav = null,
+		yGrav = null;
 	
-	var world = null;
-	var xGrav = null;
-	var yGrav = null;
+    world = new b2World(new b2Vec2(0, 10), true);
 	
+	var maze = [
+		[4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
+		[4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
+		[4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 3, 2, 4, 4],
+		[4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
+		[4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 3, 4, 4, 3, 4, 4, 4],
+		[4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
+		[4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 3, 4, 4, 4, 4, 4],
+		[4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
+		[4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
+		[4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4],
+		[4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 3, 4, 4],
+		[4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
+		[4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
+		[4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
+		[4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
+		[4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
+		[4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
+		[4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
+		[4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
+		[4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
+		[4, 4, 4, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
+		[4, 4, 4, 0, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
+		[4, 4, 4, 0, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
+		[4, 4, 4, 0, 0, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
+		[4, 0, 0, 0, 0, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
+		[4, 0, 0, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
+		[4, 4, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
+		[4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4]
+	];
 	
-	/*var gravity = new box2d.Vec2(0, 0);
-	var bounds = new box2d.AABB();
-	bounds.minVertex.Set(-soft_eng.WIDTH, -soft_eng.HEIGHT);
-	bounds.maxVertex.Set(2*soft_eng.WIDTH,2*soft_eng.HEIGHT);
-	world = new box2d.World(bounds, gravity, false);*/
-	
-    world = new b2World(
-          new b2Vec2(0, 10)    //gravity
-       ,  true                 //allow sleep
-    );
+	var ball = null;
+	var goal = null;
+	var traps = null;
+	for(var col = 0; col < maze.length; col++) {
+		for(var row = 0; row < maze[col].length; row++) {
+			if (maze[col][row] == MazeEnum.BALL) {
+				// Ball
+				var radius = 0.4;
+				ball = new soft_eng.Ball(radius, row, col, world);
+				
+			} else if (maze[col][row] == MazeEnum.GOAL) {
+				// Goal (Stationary)
+				var radius = 0.535;
+				goal = new soft_eng.Goal(radius, row, col, world);
+				// goal Sprite (lime)
+				var sprite = (new lime.Circle)
+					.setFill(0,100,100)
+					.setSize(radius * soft_eng.SCALE, radius * soft_eng.SCALE);
+				var position = goal.GetWorldCenter();
+				sprite.setPosition(position.x * soft_eng.SCALE, position.y * soft_eng.SCALE);
+				layer.appendChild(sprite);
+				
+			} else if (maze[col][row] == MazeEnum.TRAP) {
+				// Trap (Stationary)
+				var radius = 0.535;
+				var trap = new soft_eng.Trap(radius, row, col, world);
+				// trap Sprite (lime)
+				var sprite = (new lime.Circle)
+					.setFill(0,100,200)
+					.setSize(radius * soft_eng.SCALE, radius * soft_eng.SCALE);
+				var position = trap.GetWorldCenter();
+				sprite.setPosition(position.x * soft_eng.SCALE, position.y * soft_eng.SCALE);
+				layer.appendChild(sprite);
+				
+				// TODO add trap holes to an array to be checked in the game loop (whether the ball went into a trap hole)
+				
+			} else if (maze[col][row] == MazeEnum.BLOCK) {
+				// Block (Stationary)
+				var side = 0.535;
+				var block = new soft_eng.Block(side, row, col, world);
+				// block Sprite (lime)
+				var sprite = (new lime.Sprite).setFill(200,100,0).setSize(side * soft_eng.SCALE, side * soft_eng.SCALE);
+				var position = block.GetWorldCenter();
+				sprite.setPosition(position.x * soft_eng.SCALE, position.y * soft_eng.SCALE);
+				layer.appendChild(sprite);
+			}
+		}
+	}
 	
 	// ball Sprite (lime)
 	var ballSprite = (new lime.Circle)
 		.setFill(new lime.fill.LinearGradient().addColorStop(0.49,200,0,0).addColorStop(.5,0,0,250))
-		.setSize(30, 30);
+		.setSize(0.4 * soft_eng.SCALE, 0.4 * soft_eng.SCALE);
 	layer.appendChild(ballSprite);
-	var ball = new soft_eng.Ball(15, world);
 	
-
-	// ground Sprite (lime)
-	var groundSprite = (new lime.Sprite).setFill(0,100,0).setSize(320, 20);
-	layer.appendChild(groundSprite);
-	// add leftWall body
-	var ground_body = new soft_eng.Wall(new b2Vec2(160, 450), 320, 10, world);
-	
-	
-	// ceiling Sprite (lime)
-	var ceilingSprite = (new lime.Sprite).setFill(0,100,0).setSize(320, 20);
-	layer.appendChild(ceilingSprite);
-	// add ceiling
-	var ceiling_body = new soft_eng.Wall(new b2Vec2(160, 10), 320, 10, world);
-	
-	
-	// rightWall Sprite (lime)
-	var rightWallSprite = (new lime.Sprite).setFill(0,100,0).setSize(20, 460);
-	layer.appendChild(rightWallSprite);
-	// add rightWall body
-	var rightWall_body = new soft_eng.Wall(new b2Vec2(310, 230), 10, 460, world);
-	
-	
-	// leftWall Sprite (lime)
-	var leftWallSprite = (new lime.Sprite).setFill(0,100,0).setSize(20, 460);
-	layer.appendChild(leftWallSprite);
-	// add leftWall body
-	var leftWall_body = new soft_eng.Wall(new b2Vec2(10, 230), 10, 460, world);
-	
-	
+	// game loop
 	lime.scheduleManager.schedule(function(dt) {
-        world.Step(dt / 1000, 3);
-		
+        world.Step(1 / 60, 10, 10);
 		if (xGrav) {
-			var force = new b2Vec2(xGrav, yGrav);
-			var point = ball.GetWorldPoint(ball.GetLocalCenter());
-			ball.ApplyForce(force, point);
+			var newGravity = new b2Vec2(xGrav, yGrav);
+			world.SetGravity(newGravity); // set the world's gravity, the ball will move accordingly
 		}
 		
-		// attach ball sprite to ball body
+		// set the ball sprite's position and attach to ball object
 		var ballPos = ball.GetWorldCenter();
-		ballSprite.setPosition(ballPos);
-		
-		// attach ground sprite to ground body
-		var groundPos = ground_body.GetWorldCenter();
-		groundSprite.setPosition(groundPos);
-		
-		// attach ceiling sprite to ceiling body
-		var ceilingPos = ceiling_body.GetWorldCenter();
-		ceilingSprite.setPosition(ceilingPos);
-		
-		// attach rightWall sprite to rightWall body
-		var rightWallPos = rightWall_body.GetWorldCenter();
-		rightWallSprite.setPosition(rightWallPos);
-		
-		// attach leftWall sprite to leftWall body
-		var leftWallPos = leftWall_body.GetWorldCenter();
-		leftWallSprite.setPosition(leftWallPos);
+		ballSprite.setPosition(ballPos.x * soft_eng.SCALE, ballPos.y * soft_eng.SCALE);
+		world.ClearForces();
 		
 	}, this);
 	

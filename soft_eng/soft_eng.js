@@ -29,15 +29,16 @@ goog.require('soft_eng.Help');
 
 
 // constants
-soft_eng.SCALE = 1; // for box2d (pixels/meter)
-soft_eng.WIDTH = 320 / soft_eng.SCALE;
-soft_eng.HEIGHT = 460 / soft_eng.SCALE;
+soft_eng.SCALE = 30.0; // for box2d (pixels/meter)
+soft_eng.WIDTH = 320;
+soft_eng.HEIGHT = 450;
 
 
 // entrypoint, pre-flight checks..
 soft_eng.start = function() {
 	// check all requirements (accelerometer, etc...)
-	document.addEventListener("deviceready", soft_eng.setupGame, false);
+	//document.addEventListener("deviceready", soft_eng.setupGame, false);
+	soft_eng.setupGame();
 }
 
 // setup game
@@ -57,17 +58,17 @@ soft_eng.loadMainMenu = function() {
 	var scene = new lime.Scene(),
 	layer = new lime.Layer().setPosition(soft_eng.WIDTH / 2, 0);
 	
-	var title = new lime.Sprite().setFill('assets/main_title.jpg').setPosition(0, 0 / soft_eng.SCALE);
+	var title = new lime.Sprite().setFill('assets/main_title.jpg').setPosition(0, 0);
 	title.qualityRenderer = true;
 	layer.appendChild(title);
 	
 	// main menu buttons layer
-	var buttonsLayer = new lime.Layer().setPosition(0, 200 / soft_eng.SCALE);
+	var buttonsLayer = new lime.Layer().setPosition(0, 200);
 	layer.appendChild(buttonsLayer);
 	
 	
 	// add play button
-	var playButton = soft_eng.makeButton('Play Game').setPosition(0, 100 / soft_eng.SCALE);
+	var playButton = soft_eng.makeButton('Play Game').setPosition(0, 100);
 	goog.events.listen(playButton, 'click', function() {
 		// play the game!!!
 		soft_eng.newGame();
@@ -75,7 +76,7 @@ soft_eng.loadMainMenu = function() {
 	buttonsLayer.appendChild(playButton);
 	
 	// add Help button
-	var helpButton = soft_eng.makeButton('Help').setPosition(0, 170 / soft_eng.SCALE);
+	var helpButton = soft_eng.makeButton('Help').setPosition(0, 170);
 	goog.events.listen(helpButton, 'click', function() {
 		// show help window
 		soft_eng.loadHelpScene();
@@ -92,14 +93,14 @@ soft_eng.loadMainMenu = function() {
 
 // load new game scene
 soft_eng.newGame = function() {
-	alert('PLAY TIIIME');
+	//alert('PLAY TIIIME');
     var scene = new soft_eng.Game();
 	soft_eng.director.replaceScene(scene, lime.transitions.Dissolve);
 };
 
 // helper for same size buttons
 soft_eng.makeButton = function(text) {
-    var btn = new soft_eng.Button(text).setSize(170 / soft_eng.SCALE, 45 / soft_eng.SCALE);
+    var btn = new soft_eng.Button(text).setSize(170, 45);
     return btn;
 };
 
