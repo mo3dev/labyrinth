@@ -159,9 +159,7 @@ soft_eng.Game = function() {
         world.Step(1 / 60, 6, 6);
 		
 		if (ballAcceleration.x && ballAcceleration.y) {
-			var kFilterFactor = 1.0
-			console.log(ballAcceleration);
-			console.log(prevAcceleration);
+			var kFilterFactor = 1.0;
 			var accel = {};
 			if (prevAcceleration.x && prevAcceleration.y) {
 				accel.x = ballAcceleration.x * kFilterFactor + (1- kFilterFactor)*prevAcceleration.x;
