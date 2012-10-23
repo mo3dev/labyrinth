@@ -6,12 +6,11 @@ soft_eng.Constants = {
 		x: 90,
 		y: 160
 	},
-	cellSize: 0.535,
 	mazeSize: {
 		x: 20,
 		y: 28
 	},
 	ball: {
-		radius: 0.5
+		radius: 0.75
 	}
 }
