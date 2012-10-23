@@ -18,9 +18,8 @@ goog.require('soft_eng.Help');
 
 
 // constants
-soft_eng.SCALE = 30.0; // for box2d (pixels/meter)
-soft_eng.WIDTH = 320;
-soft_eng.HEIGHT = 450;
+soft_eng.WIDTH = 16;
+soft_eng.HEIGHT = 9;
 
 
 // entrypoint, pre-flight checks..
