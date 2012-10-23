@@ -37,8 +37,8 @@ soft_eng.HEIGHT = 450;
 // entrypoint, pre-flight checks..
 soft_eng.start = function() {
 	// check all requirements (accelerometer, etc...)
-	//document.addEventListener("deviceready", soft_eng.setupGame, false);
-	soft_eng.setupGame();
+	document.addEventListener("deviceready", soft_eng.setupGame, false);
+	//soft_eng.setupGame();
 }
 
 // setup game
@@ -58,8 +58,8 @@ soft_eng.loadMainMenu = function() {
 	var scene = new lime.Scene(),
 	layer = new lime.Layer().setPosition(soft_eng.WIDTH / 2, 0);
 	
-	var title = new lime.Sprite().setFill('assets/main_title.jpg').setPosition(0, 0);
-	title.qualityRenderer = true;
+	var title = new lime.Sprite().setFill('/assets/main_title.jpg').setPosition(0, 0);
+	//title.qualityRenderer = true;
 	layer.appendChild(title);
 	
 	// main menu buttons layer
@@ -87,7 +87,7 @@ soft_eng.loadMainMenu = function() {
 	scene.appendChild(layer);
 	
 	// set current scene active
-	soft_eng.director.replaceScene(scene, lime.transitions.Dissolve);
+	soft_eng.director.replaceScene(scene);
 }
 
 
@@ -95,7 +95,8 @@ soft_eng.loadMainMenu = function() {
 soft_eng.newGame = function() {
 	//alert('PLAY TIIIME');
     var scene = new soft_eng.Game();
-	soft_eng.director.replaceScene(scene, lime.transitions.Dissolve);
+	//soft_eng.director.replaceScene(scene, new lime.transitions.Dissolve().setDuration(0.1));
+	soft_eng.director.replaceScene(scene);
 };
 
 // helper for same size buttons

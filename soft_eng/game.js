@@ -9,7 +9,7 @@ goog.require('soft_eng.Block');
 soft_eng.Game = function() {
 	
 	// maze object type enum
-	MazeEnum = Object.freeze( {"EMPTY": 0, "BALL": 1, "GOAL": 2, "TRAP": 3, "BLOCK": 4} );
+	MazeEnum = {"EMPTY": 0, "BALL": 1, "GOAL": 2, "TRAP": 3, "BLOCK": 4};
 	
 	b2Vec2 = Box2D.Common.Math.b2Vec2;
 	b2BodyDef = Box2D.Dynamics.b2BodyDef;
@@ -23,16 +23,17 @@ soft_eng.Game = function() {
 	b2DebugDraw = Box2D.Dynamics.b2DebugDraw;
 	
 	// Start listening for Accelerometer, set frequency
-	var options = { frequency: 40 };
+	var options = { frequency: 250 };
 	var watchID = navigator.accelerometer.watchAcceleration(onAccelerometerSuccess, onAccelerometerError, options);
 	
 	// onSuccess: Get a snapshot of the current acceleration
 	function onAccelerometerSuccess(acceleration) {
-		//xLabel.setText('x: ' + acceleration.x); 
-		//yLabel.setText('y: ' + acceleration.y); 
-		//zLabel.setText('z: ' + acceleration.z); 
-		xGrav = acceleration.x * -10.0;
-		yGrav = acceleration.y * 10.0;
+		xLabel.setText('x: ' + acceleration.x); 
+		yLabel.setText('y: ' + acceleration.y); 
+		zLabel.setText('z: ' + acceleration.z);
+		console.log(acceleration);
+		ballAcceleration.x = acceleration.x;
+		ballAcceleration.y = acceleration.y;
 	}
 
 	// onError: Failed to get the acceleration
@@ -46,18 +47,19 @@ soft_eng.Game = function() {
 	scene.appendChild(layer);
 
 	//debugging labels
-	//var xLabel = new lime.Label('x: ').setAnchorPoint(0, 0).setPosition(20, 20);
-	//var yLabel = new lime.Label('y: ').setAnchorPoint(0, 0).setPosition(20, 40);
-	//var zLabel = new lime.Label('z: ').setAnchorPoint(0, 0).setPosition(20, 60);
-	//scene.appendChild(xLabel);
-	//scene.appendChild(yLabel);
-	//scene.appendChild(zLabel);
+	var xLabel = new lime.Label('x: ').setAnchorPoint(0, 0).setPosition(20, 20);
+	var yLabel = new lime.Label('y: ').setAnchorPoint(0, 0).setPosition(20, 40);
+	var zLabel = new lime.Label('z: ').setAnchorPoint(0, 0).setPosition(20, 60);
+	scene.appendChild(xLabel);
+	scene.appendChild(yLabel);
+	scene.appendChild(zLabel);
 	
 	var world = null,
-		xGrav = null,
-		yGrav = null;
+	// global???
+	ballAcceleration = {},
+	prevAcceleration = {};
 	
-    world = new b2World(new b2Vec2(0, 10), true);
+    world = new b2World(new b2Vec2(0, 0), true);
 	
 	var maze = [
 		[4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
@@ -91,9 +93,9 @@ soft_eng.Game = function() {
 	];
 	
 	
-	var ball = null;
-	var goal = null;
-	var traps = null;
+	var ball = {};
+	var goal = {};
+	var traps = {};
 	for(var col = 0; col < maze.length; col++) {
 		for(var row = 0; row < maze[col].length; row++) {
 			if (maze[col][row] == MazeEnum.BALL) {
@@ -132,7 +134,7 @@ soft_eng.Game = function() {
 				var side = 0.535;
 				var block = new soft_eng.Block(side, row, col, world);
 				// block Sprite (lime)
-				var sprite = (new lime.Sprite).setFill(0,0,0).setSize(side * soft_eng.SCALE, side * soft_eng.SCALE);
+				var sprite = (new lime.Sprite).setFill(200,100,0).setSize(side * soft_eng.SCALE, side * soft_eng.SCALE);
 				var position = block.GetWorldCenter();
 				sprite.setPosition(position.x * soft_eng.SCALE, position.y * soft_eng.SCALE);
 				layer.appendChild(sprite);
@@ -151,8 +153,22 @@ soft_eng.Game = function() {
 	// game loop
 	lime.scheduleManager.schedule(function(dt) {
         world.Step(1 / 60, 10, 10);
-		if (xGrav) {
-			var newGravity = new b2Vec2(xGrav, yGrav);
+		
+		var kFilterFactor = 1.0
+		if (ballAcceleration.x !== null && ballAcceleration.y !== null) {
+			var accel = {};
+			if (prevAcceleration.x !== null && prevAcceleration.y !== null) {
+				accel.x = ballAcceleration.x * kFilterFactor + (1- kFilterFactor)*prevAcceleration.x;
+				accel.y = ballAcceleration.y * kFilterFactor + (1- kFilterFactor)*prevAcceleration.y;
+			} else {
+				accel.x = ballAcceleration.x * kFilterFactor;
+				accel.y = ballAcceleration.y * kFilterFactor;
+			}
+			
+			prevAcceleration.x = accel.x;
+			prevAcceleration.y = accel.y;
+
+			var newGravity = new b2Vec2(accel.x, accel.y);
 			world.SetGravity(newGravity); // set the world's gravity, the ball will move accordingly
 		}
 		
@@ -163,7 +179,7 @@ soft_eng.Game = function() {
 		
 	}, this);
 	console.log("Exiting loop");
-	
+	scene.setRenderer(lime.Renderer.CANVAS);	
 	return scene;
 	
 }
