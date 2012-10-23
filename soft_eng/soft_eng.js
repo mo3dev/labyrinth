@@ -3,16 +3,6 @@ goog.provide('soft_eng');
 
 
 //get requirements
-/*goog.require('box2d.BodyDef');
-goog.require('box2d.BoxDef');
-goog.require('box2d.CircleDef');
-goog.require('box2d.CircleShape');
-goog.require('box2d.PolyDef');
-goog.require('box2d.Vec2');
-goog.require('box2d.JointDef');
-goog.require('box2d.MouseJointDef');
-goog.require('box2d.World');*/
-// lime
 goog.require('lime');
 goog.require('lime.Circle');
 goog.require('lime.CoverNode');
@@ -21,7 +11,6 @@ goog.require('lime.Layer');
 goog.require('lime.Scene');
 goog.require('lime.fill.LinearGradient');
 goog.require('lime.Label');
-goog.require('lime.transitions.Dissolve');
 // custom classes
 goog.require('soft_eng.Button');
 goog.require('soft_eng.Game');
@@ -38,7 +27,6 @@ soft_eng.HEIGHT = 450;
 soft_eng.start = function() {
 	// check all requirements (accelerometer, etc...)
 	document.addEventListener("deviceready", soft_eng.setupGame, false);
-	//soft_eng.setupGame();
 }
 
 // setup game
@@ -93,9 +81,8 @@ soft_eng.loadMainMenu = function() {
 
 // load new game scene
 soft_eng.newGame = function() {
-	//alert('PLAY TIIIME');
+	alert('PLAY TIIIME');
     var scene = new soft_eng.Game();
-	//soft_eng.director.replaceScene(scene, new lime.transitions.Dissolve().setDuration(0.1));
 	soft_eng.director.replaceScene(scene);
 };
 
@@ -109,7 +96,7 @@ soft_eng.makeButton = function(text) {
 // load new help scene
 soft_eng.loadHelpScene = function() {
     //var scene = new soft_eng.Help();
-	//soft_eng.director.replaceScene(scene, lime.transitions.Dissolve);
+	//soft_eng.director.replaceScene(scene);
 	alert('HEEEEEELP');
 };
 
