@@ -1,4 +1,4 @@
-goog.provide('soft_eng.OtherGame');
+goog.provide('soft_eng.Game');
 
 goog.require('soft_eng.Ball');
 goog.require('soft_eng.Goal');
@@ -6,7 +6,7 @@ goog.require('soft_eng.Trap');
 goog.require('soft_eng.Block');
 
 // entrypoint
-soft_eng.OtherGame = function() {
+soft_eng.Game = function() {
 	console.log("begin");
 	// maze object type enum
 	MazeEnum = {"EMPTY": 0, "BALL": 1, "GOAL": 2, "TRAP": 3, "BLOCK": 4};
@@ -23,16 +23,14 @@ soft_eng.OtherGame = function() {
 	b2DebugDraw = Box2D.Dynamics.b2DebugDraw;
 	
 	// Start listening for Accelerometer, set frequency
-	var options = { frequency: 100 };
+	var options = { frequency: 40 };
 	var watchID = navigator.accelerometer.watchAcceleration(onAccelerometerSuccess, onAccelerometerError, options);
 	
 	// onSuccess: Get a snapshot of the current acceleration
 	function onAccelerometerSuccess(acceleration) {
-		if ( xLabel && yLabel && zLabel) {
-			xLabel.setText('x: ' + acceleration.x); 
-			yLabel.setText('y: ' + acceleration.y); 
-			zLabel.setText('z: ' + acceleration.z);
-		}
+		xLabel.setText('x: ' + acceleration.x); 
+		yLabel.setText('y: ' + acceleration.y); 
+		zLabel.setText('z: ' + acceleration.z);
 		ballAcceleration.x = acceleration.x;
 		ballAcceleration.y = acceleration.y;
 	}
@@ -48,12 +46,12 @@ soft_eng.OtherGame = function() {
 	scene.appendChild(layer);
 
 	//debugging labels
-	//var xLabel = new lime.Label('x: ').setAnchorPoint(0, 0).setPosition(20, 20);
-	//var yLabel = new lime.Label('y: ').setAnchorPoint(0, 0).setPosition(20, 40);
-	//var zLabel = new lime.Label('z: ').setAnchorPoint(0, 0).setPosition(20, 60);
-	//scene.appendChild(xLabel);
-	//scene.appendChild(yLabel);
-	//scene.appendChild(zLabel);
+	var xLabel = new lime.Label('x: ').setAnchorPoint(0, 0).setPosition(20, 20);
+	var yLabel = new lime.Label('y: ').setAnchorPoint(0, 0).setPosition(20, 40);
+	var zLabel = new lime.Label('z: ').setAnchorPoint(0, 0).setPosition(20, 60);
+	scene.appendChild(xLabel);
+	scene.appendChild(yLabel);
+	scene.appendChild(zLabel);
 	
 	var ballAcceleration = {},
 	prevAcceleration = {};
@@ -96,63 +94,59 @@ soft_eng.OtherGame = function() {
 	var ball = null;
 	var goal = null;
 	var traps = [];
-	// ball Sprite (lime)
-	var ballSprite = null;
 	for(var col = 0; col < maze.length; col++) {
 		for(var row = 0; row < maze[col].length; row++) {
 			if (maze[col][row] == MazeEnum.BALL) {
 				// Ball
-				var radius = soft_eng.Constants.ball.radius;
-				ball = new soft_eng.Ball(soft_eng.Constants.ball.radius, row, col, world);
-				ballSprite = new lime.Circle()
-					.setFill(
-						new lime.fill.LinearGradient()
-							.addColorStop(0.49,200,0,0)
-							.addColorStop(.5,0,0,250)
-						)
-					.setSize(radius, radius);
-					layer.appendChild(ballSprite);
+				var radius = 0.5;
+				ball = new soft_eng.Ball(radius, row, col, world);
+				
 			} else if (maze[col][row] == MazeEnum.GOAL) {
 				// Goal (Stationary)
-				var cellSize = soft_eng.Constants.cellSize;
-				goal = new soft_eng.Goal(cellSize, row, col, world);
+				var radius = 0.535;
+				goal = new soft_eng.Goal(radius, row, col, world);
 				// goal Sprite (lime)
-				var sprite = new lime.Circle()
+				var sprite = (new lime.Circle)
 					.setFill(0,100,100)
-					.setSize(cellSize, cellSize);
+					.setSize(radius * soft_eng.Constants.canvasSize.x, radius * soft_eng.Constants.canvasSize.y);
 				var position = goal.GetWorldCenter();
-				sprite.setPosition(position.x * cellSize, position.y * cellSize);
+				sprite.setPosition(position.x * soft_eng.Constants.canvasSize.x, soft_eng.Constants.canvasSize.y);
 				layer.appendChild(sprite);
 				
 			} else if (maze[col][row] == MazeEnum.TRAP) {
 				// Trap (Stationary)
-				var cellSize = soft_eng.Constants.cellSize;
-				var trap = new soft_eng.Trap(cellSize, row, col, world);
+				var radius = 0.535;
+				var trap = new soft_eng.Trap(radius, row, col, world);
 				// trap Sprite (lime)
-				var sprite = new lime.Circle()
+				var sprite = (new lime.Circle)
 					.setFill(0,100,200)
-					.setSize(cellSize, cellSize);
+					.setSize(radius * soft_eng.Constants.canvasSize.x, radius * soft_eng.Constants.canvasSize.y);
 				var position = trap.GetWorldCenter();
-				sprite.setPosition(position.x * cellSize, position.y * cellSize);
+				sprite.setPosition(position.x * soft_eng.Constants.canvasSize.x, position.y * soft_eng.Constants.canvasSize.y);
 				layer.appendChild(sprite);
 				
 				// TODO add trap holes to an array to be checked in the game loop (whether the ball went into a trap hole)
 				
 			} else if (maze[col][row] == MazeEnum.BLOCK) {
-				// Block (Stationary)cellSize
-				var cellSize = soft_eng.Constants.cellSize;
-				var block = new soft_eng.Block(cellSize, row, col, world);
+				// Block (Stationary)
+				var side = 0.535;
+				var block = new soft_eng.Block(side, row, col, world);
 				// block Sprite (lime)
-				var sprite = new lime.Circle()
-					.setFill(200,100,0)
-					.setSize(cellSize, cellSize);
+				var sprite = (new lime.Sprite).setFill(200,100,0).setSize(side * soft_eng.SCALE, side * soft_eng.SCALE);
 				var position = block.GetWorldCenter();
-				sprite.setPosition(position.x * cellSize, position.y * cellSize);
+				sprite.setPosition(position.x * soft_eng.Constants.canvasSize.x, position.y * ssoft_eng.Constants.canvasSize.y);
 				layer.appendChild(sprite);
 			}
 		}
 	}
 	console.log("Exiting Maze loop");
+	
+	
+	// ball Sprite (lime)
+	var ballSprite = (new lime.Circle)
+		.setFill(new lime.fill.LinearGradient().addColorStop(0.49,200,0,0).addColorStop(.5,0,0,250))
+		.setSize(0.5 * soft_eng.SCALE, 0.5 * soft_eng.SCALE);
+	layer.appendChild(ballSprite);
 	
 	console.log("Entering Game loop");
 	// game loop
@@ -179,13 +173,12 @@ soft_eng.OtherGame = function() {
 		
 		// set the ball sprite's position and attach to ball object
 		var ballPos = ball.GetWorldCenter();
-		var cellSize = soft_eng.Constants.cellSize;
-		ballSprite.setPosition(ballPos.x * cellSize, ballPos.y * cellSize);
+		ballSprite.setPosition(ballPos.x * soft_eng.Constants.canvasSize.x, ballPos.y * soft_eng.Constants.canvasSize.y);
 		world.ClearForces();
 	}, this);
 	
 	console.log("Exiting Game loop");
 	console.log("end");
-	scene.setSize(soft_eng.Constants.canvasSize.x, soft_eng.Constants.canvasSize.y);
+	
 	return scene;
 }

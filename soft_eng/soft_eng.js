@@ -14,12 +14,12 @@ goog.require('lime.Label');
 // custom classes
 goog.require('soft_eng.Button');
 goog.require('soft_eng.Game');
+
 goog.require('soft_eng.Help');
+goog.require('soft_eng.Constants');
 
-
-// constants
-soft_eng.WIDTH = 16;
-soft_eng.HEIGHT = 9;
+// other version for testing!!!
+goog.require('soft_eng.OtherGame');
 
 
 // entrypoint, pre-flight checks..
@@ -32,9 +32,9 @@ soft_eng.start = function() {
 soft_eng.setupGame = function() {
 	// setup the game, all preconditions are met (accelerometer, etc..)
 	// setup the director
-	soft_eng.director = new lime.Director(document.body, soft_eng.WIDTH, soft_eng.HEIGHT);
+	soft_eng.director = new lime.Director(document.body, soft_eng.Constants.canvasSize.x, soft_eng.Constants.canvasSize.y);
+	alert( soft_eng.Constants.canvasSize.x + " " +  soft_eng.Constants.canvasSize.y);
 	soft_eng.director.makeMobileWebAppCapable();
-	
 	// load the main menu scene
 	soft_eng.loadMainMenu();
 }
@@ -43,19 +43,19 @@ soft_eng.setupGame = function() {
 soft_eng.loadMainMenu = function() {
 	// load the main menu
 	var scene = new lime.Scene(),
-	layer = new lime.Layer().setPosition(soft_eng.WIDTH / 2, 0);
+	layer = new lime.Layer().setPosition(0, 0).setAnchorPoint(0, 0);
 	
-	var title = new lime.Sprite().setFill('/assets/main_title.jpg').setPosition(0, 0);
+	var title = new lime.Sprite().setFill('assets/main_title.jpg').setPosition(0, 0).setAnchorPoint(0, 0);
 	//title.qualityRenderer = true;
 	layer.appendChild(title);
 	
 	// main menu buttons layer
-	var buttonsLayer = new lime.Layer().setPosition(0, 200);
+	var buttonsLayer = new lime.Layer().setPosition(0, 0).setAnchorPoint(0, 0);
 	layer.appendChild(buttonsLayer);
 	
 	
 	// add play button
-	var playButton = soft_eng.makeButton('Play Game').setPosition(0, 100);
+	var playButton = soft_eng.makeButton('Play Game').setPosition(soft_eng.Constants.canvasSize.x * 0.5, soft_eng.Constants.canvasSize.y * 0.5).setAnchorPoint(0, 0);
 	goog.events.listen(playButton, 'click', function() {
 		// play the game!!!
 		soft_eng.newGame();
@@ -63,7 +63,7 @@ soft_eng.loadMainMenu = function() {
 	buttonsLayer.appendChild(playButton);
 	
 	// add Help button
-	var helpButton = soft_eng.makeButton('Help').setPosition(0, 170);
+	var helpButton = soft_eng.makeButton('Help').setPosition(soft_eng.Constants.canvasSize.x * 0.5, soft_eng.Constants.canvasSize.y * 0.75).setAnchorPoint(0, 0);
 	goog.events.listen(helpButton, 'click', function() {
 		// show help window
 		soft_eng.loadHelpScene();
@@ -81,13 +81,13 @@ soft_eng.loadMainMenu = function() {
 // load new game scene
 soft_eng.newGame = function() {
 	//alert('PLAY TIIIME');
-    var scene = new soft_eng.Game();
+    var scene = new soft_eng.OtherGame();
 	soft_eng.director.replaceScene(scene);
 };
 
 // helper for same size buttons
 soft_eng.makeButton = function(text) {
-    var btn = new soft_eng.Button(text).setSize(170, 45);
+    var btn = new soft_eng.Button(text).setSize(soft_eng.Constants.canvasSize.x*0.75, soft_eng.Constants.canvasSize.y*0.25);
     return btn;
 };
 
