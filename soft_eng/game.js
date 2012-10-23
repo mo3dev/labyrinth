@@ -4,6 +4,7 @@ goog.require('soft_eng.Ball');
 goog.require('soft_eng.Goal');
 goog.require('soft_eng.Trap');
 goog.require('soft_eng.Block');
+goog.require('soft_eng.Constants');
 
 // entrypoint
 soft_eng.Game = function() {
@@ -22,10 +23,6 @@ soft_eng.Game = function() {
 	b2CircleShape = Box2D.Collision.Shapes.b2CircleShape;
 	b2DebugDraw = Box2D.Dynamics.b2DebugDraw;
 	
-	// Start listening for Accelerometer, set frequency
-	var options = { frequency: 40 };
-	var watchID = navigator.accelerometer.watchAcceleration(onAccelerometerSuccess, onAccelerometerError, options);
-	
 	// onSuccess: Get a snapshot of the current acceleration
 	function onAccelerometerSuccess(acceleration) {
 		xLabel.setText('x: ' + acceleration.x); 
@@ -40,6 +37,11 @@ soft_eng.Game = function() {
 	function onAccelerometerError() {
 		alert('onError!');
 	}
+	
+	// Start listening for Accelerometer, set frequency
+	var options = { frequency: 250 };
+	var watchID = navigator.accelerometer.watchAcceleration(onAccelerometerSuccess, onAccelerometerError, options);
+	alert(watchID);
 	
 	var scene = new lime.Scene();
 	var layer = new lime.Layer();
@@ -101,7 +103,7 @@ soft_eng.Game = function() {
 		for(var row = 0; row < maze[col].length; row++) {
 			if (maze[col][row] == MazeEnum.BALL) {
 				// Ball
-				var radius = 0.5;
+				var radius = soft_eng.Constants.ball.radius;
 				ball = new soft_eng.Ball(radius, row, col, world);
 				
 			} else if (maze[col][row] == MazeEnum.GOAL) {
@@ -154,12 +156,14 @@ soft_eng.Game = function() {
 	console.log("Entering Game loop");
 	// game loop
 	lime.scheduleManager.schedule(function(dt) {
-        world.Step(1 / 60, 10, 10);
+        world.Step(1 / 60, 6, 6);
 		
-		var kFilterFactor = 1.0
-		if (ballAcceleration.x !== null && ballAcceleration.y !== null) {
+		if (ballAcceleration.x && ballAcceleration.y) {
+			var kFilterFactor = 1.0
+			console.log(ballAcceleration);
+			console.log(prevAcceleration);
 			var accel = {};
-			if (prevAcceleration.x !== null && prevAcceleration.y !== null) {
+			if (prevAcceleration.x && prevAcceleration.y) {
 				accel.x = ballAcceleration.x * kFilterFactor + (1- kFilterFactor)*prevAcceleration.x;
 				accel.y = ballAcceleration.y * kFilterFactor + (1- kFilterFactor)*prevAcceleration.y;
 			} else {
@@ -169,7 +173,7 @@ soft_eng.Game = function() {
 			
 			prevAcceleration.x = accel.x;
 			prevAcceleration.y = accel.y;
-
+        
 			var newGravity = new b2Vec2(accel.x, accel.y);
 			world.SetGravity(newGravity); // set the world's gravity, the ball will move accordingly
 		}
