@@ -81,7 +81,7 @@ soft_eng.loadMainMenu = function() {
 
 // load new game scene
 soft_eng.newGame = function() {
-	alert('PLAY TIIIME');
+	//alert('PLAY TIIIME');
     var scene = new soft_eng.Game();
 	soft_eng.director.replaceScene(scene);
 };

@@ -7,7 +7,7 @@ goog.require('soft_eng.Block');
 
 // entrypoint
 soft_eng.Game = function() {
-	
+	console.log("begin");
 	// maze object type enum
 	MazeEnum = {"EMPTY": 0, "BALL": 1, "GOAL": 2, "TRAP": 3, "BLOCK": 4};
 	
@@ -31,7 +31,7 @@ soft_eng.Game = function() {
 		xLabel.setText('x: ' + acceleration.x); 
 		yLabel.setText('y: ' + acceleration.y); 
 		zLabel.setText('z: ' + acceleration.z);
-		console.log(acceleration);
+		console.log("Acceleration: " + acceleration);
 		ballAcceleration.x = acceleration.x;
 		ballAcceleration.y = acceleration.y;
 	}
@@ -54,12 +54,10 @@ soft_eng.Game = function() {
 	scene.appendChild(yLabel);
 	scene.appendChild(zLabel);
 	
-	var world = null,
-	// global???
-	ballAcceleration = {},
+	var ballAcceleration = {},
 	prevAcceleration = {};
 	
-    world = new b2World(new b2Vec2(0, 0), true);
+    var world = new b2World(new b2Vec2(0, 0), true);
 	
 	var maze = [
 		[4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
@@ -154,16 +152,16 @@ soft_eng.Game = function() {
 	console.log("Entering Game loop");
 	// game loop
 	lime.scheduleManager.schedule(function(dt) {
-        world.Step(1 / 60, 10, 10);
+        world.Step(1 / 60, 6, 6);
 		
-		var kFilterFactor = 1.0
-		if (ballAcceleration.x !== null && ballAcceleration.y !== null) {
+		var kFilterFactor = 1.0;
+		if (ballAcceleration.x && ballAcceleration.y) {
 			var accel = {};
-			if (prevAcceleration.x !== null && prevAcceleration.y !== null) {
-				accel.x = ballAcceleration.x * kFilterFactor + (1- kFilterFactor)*prevAcceleration.x;
+			if (prevAcceleration.x && prevAcceleration.y) {
+				accel.x = ballAcceleration.x * -kFilterFactor + (1- kFilterFactor)*prevAcceleration.x;
 				accel.y = ballAcceleration.y * kFilterFactor + (1- kFilterFactor)*prevAcceleration.y;
 			} else {
-				accel.x = ballAcceleration.x * kFilterFactor;
+				accel.x = ballAcceleration.x * -kFilterFactor;
 				accel.y = ballAcceleration.y * kFilterFactor;
 			}
 			
@@ -177,11 +175,12 @@ soft_eng.Game = function() {
 		// set the ball sprite's position and attach to ball object
 		var ballPos = ball.GetWorldCenter();
 		ballSprite.setPosition(ballPos.x * soft_eng.SCALE, ballPos.y * soft_eng.SCALE);
-		world.ClearForces();
+		//world.ClearForces();
 		
 	}, this);
-	console.log("Exiting Game loop");
-		
-	return scene;
 	
+	console.log("Exiting Game loop");
+	console.log("end");
+	
+	return scene;
 }
