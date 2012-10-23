@@ -22,15 +22,15 @@ soft_eng.Game = function() {
 	b2CircleShape = Box2D.Collision.Shapes.b2CircleShape;
 	b2DebugDraw = Box2D.Dynamics.b2DebugDraw;
 	
-	// Start listening for Accelerometer, check it every 40ms
-	var options = { frequency: 100 };
+	// Start listening for Accelerometer, set frequency
+	var options = { frequency: 40 };
 	var watchID = navigator.accelerometer.watchAcceleration(onAccelerometerSuccess, onAccelerometerError, options);
 	
 	// onSuccess: Get a snapshot of the current acceleration
 	function onAccelerometerSuccess(acceleration) {
-		xLabel.setText('x: ' + acceleration.x); 
-		yLabel.setText('y: ' + acceleration.y); 
-		zLabel.setText('z: ' + acceleration.z); 
+		//xLabel.setText('x: ' + acceleration.x); 
+		//yLabel.setText('y: ' + acceleration.y); 
+		//zLabel.setText('z: ' + acceleration.z); 
 		xGrav = acceleration.x * -10.0;
 		yGrav = acceleration.y * 10.0;
 	}
@@ -46,12 +46,12 @@ soft_eng.Game = function() {
 	scene.appendChild(layer);
 
 	//debugging labels
-	var xLabel = new lime.Label('x: ').setAnchorPoint(0, 0).setPosition(20, 20);
-	var yLabel = new lime.Label('y: ').setAnchorPoint(0, 0).setPosition(20, 40);
-	var zLabel = new lime.Label('z: ').setAnchorPoint(0, 0).setPosition(20, 60);
-	scene.appendChild(xLabel);
-	scene.appendChild(yLabel);
-	scene.appendChild(zLabel);
+	//var xLabel = new lime.Label('x: ').setAnchorPoint(0, 0).setPosition(20, 20);
+	//var yLabel = new lime.Label('y: ').setAnchorPoint(0, 0).setPosition(20, 40);
+	//var zLabel = new lime.Label('z: ').setAnchorPoint(0, 0).setPosition(20, 60);
+	//scene.appendChild(xLabel);
+	//scene.appendChild(yLabel);
+	//scene.appendChild(zLabel);
 	
 	var world = null,
 		xGrav = null,
@@ -89,6 +89,7 @@ soft_eng.Game = function() {
 		[4, 4, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
 		[4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4]
 	];
+	
 	
 	var ball = null;
 	var goal = null;
@@ -131,7 +132,7 @@ soft_eng.Game = function() {
 				var side = 0.535;
 				var block = new soft_eng.Block(side, row, col, world);
 				// block Sprite (lime)
-				var sprite = (new lime.Sprite).setFill(200,100,0).setSize(side * soft_eng.SCALE, side * soft_eng.SCALE);
+				var sprite = (new lime.Sprite).setFill(0,0,0).setSize(side * soft_eng.SCALE, side * soft_eng.SCALE);
 				var position = block.GetWorldCenter();
 				sprite.setPosition(position.x * soft_eng.SCALE, position.y * soft_eng.SCALE);
 				layer.appendChild(sprite);
@@ -139,12 +140,14 @@ soft_eng.Game = function() {
 		}
 	}
 	
+	
 	// ball Sprite (lime)
 	var ballSprite = (new lime.Circle)
 		.setFill(new lime.fill.LinearGradient().addColorStop(0.49,200,0,0).addColorStop(.5,0,0,250))
 		.setSize(0.4 * soft_eng.SCALE, 0.4 * soft_eng.SCALE);
 	layer.appendChild(ballSprite);
 	
+	console.log("Entering loop");
 	// game loop
 	lime.scheduleManager.schedule(function(dt) {
         world.Step(1 / 60, 10, 10);
@@ -159,7 +162,7 @@ soft_eng.Game = function() {
 		world.ClearForces();
 		
 	}, this);
-	
+	console.log("Exiting loop");
 	
 	return scene;
 	
