@@ -25,8 +25,7 @@ goog.require('soft_eng.OtherGame');
 // entrypoint, pre-flight checks..
 soft_eng.start = function() {
 	// check all requirements (accelerometer, etc...)
-	//document.addEventListener("deviceready", soft_eng.setupGame, false);
-	soft_eng.setupGame();
+	document.addEventListener("deviceready", soft_eng.setupGame, false);
 }
 
 // setup game
@@ -46,7 +45,7 @@ soft_eng.loadMainMenu = function() {
 	var scene = new lime.Scene(),
 	layer = new lime.Layer().setPosition(0, 0).setAnchorPoint(0, 0);
 	
-	var title = new lime.Sprite().setFill('images/main_title.jpg').setPosition(0, 0).setAnchorPoint(0, 0);
+	var title = new lime.Sprite().setFill('assets/main_title.jpg').setPosition(0, 0).setAnchorPoint(0, 0);
 	//title.qualityRenderer = true;
 	layer.appendChild(title);
 	

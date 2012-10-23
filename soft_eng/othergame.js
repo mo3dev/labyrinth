@@ -24,12 +24,7 @@ soft_eng.OtherGame = function() {
 	
 	// Start listening for Accelerometer, set frequency
 	var options = { frequency: 100 };
-	var watchID = null;
-	try {
-		watchID = navigator.accelerometer.watchAcceleration(onAccelerometerSuccess, onAccelerometerError, options);
-	} catch (e) {
-		alert('watchid is null');
-	}
+	var watchID = navigator.accelerometer.watchAcceleration(onAccelerometerSuccess, onAccelerometerError, options);
 	
 	// onSuccess: Get a snapshot of the current acceleration
 	function onAccelerometerSuccess(acceleration) {
@@ -103,13 +98,6 @@ soft_eng.OtherGame = function() {
 	var traps = [];
 	// ball Sprite (lime)
 	var ballSprite = null;
-	
-	var displaySize = {};
-	displaySize.x = document.width;
-	displaySize.y = document.height;
-	
-	console.log(displaySize);
-	
 	for(var col = 0; col < maze.length; col++) {
 		for(var row = 0; row < maze[col].length; row++) {
 			if (maze[col][row] == MazeEnum.BALL) {
