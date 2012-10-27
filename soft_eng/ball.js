@@ -7,7 +7,7 @@ soft_eng.Ball = function(radius, row, col, world)
 	
 	var circleDef = new b2FixtureDef;
 	circleDef.shape = new b2CircleShape(radius/2);
-	circleDef.density = 1.0;
+	circleDef.density = 0.5;
 	circleDef.restitution = 0.2;
 	circleDef.friction = 0.0;
 

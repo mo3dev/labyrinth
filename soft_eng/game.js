@@ -23,7 +23,7 @@ soft_eng.Game = function() {
 	b2DebugDraw = Box2D.Dynamics.b2DebugDraw;
 	
 	// Start listening for Accelerometer, set frequency
-	var options = { frequency: 40 };
+	var options = { frequency: 100 };
 	var watchID = navigator.accelerometer.watchAcceleration(onAccelerometerSuccess, onAccelerometerError, options);
 	
 	// onSuccess: Get a snapshot of the current acceleration
@@ -32,8 +32,8 @@ soft_eng.Game = function() {
 		yLabel.setText('y: ' + acceleration.y); 
 		zLabel.setText('z: ' + acceleration.z);
 		console.log("Acceleration: " + acceleration);
-		ballAcceleration.x = acceleration.x;
-		ballAcceleration.y = acceleration.y;
+		ballAcceleration.x = acceleration.x * 25.0;
+		ballAcceleration.y = acceleration.y * 25.0;
 	}
 
 	// onError: Failed to get the acceleration
@@ -99,7 +99,7 @@ soft_eng.Game = function() {
 		for(var row = 0; row < maze[col].length; row++) {
 			if (maze[col][row] == MazeEnum.BALL) {
 				// Ball
-				var radius = 0.5;
+				var radius = 0.4;
 				ball = new soft_eng.Ball(radius, row, col, world);
 				
 			} else if (maze[col][row] == MazeEnum.GOAL) {
@@ -151,8 +151,9 @@ soft_eng.Game = function() {
 	
 	console.log("Entering Game loop");
 	// game loop
+	lime.scheduleManager.setDisplayRate(24);
 	lime.scheduleManager.schedule(function(dt) {
-        world.Step(1 / 60, 6, 6);
+        world.Step(1 / 24, 6, 6);
 		
 		var kFilterFactor = 1.0;
 		if (ballAcceleration.x && ballAcceleration.y) {
