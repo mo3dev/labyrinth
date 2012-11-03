@@ -4,6 +4,7 @@ goog.require('soft_eng.Ball');
 goog.require('soft_eng.Goal');
 goog.require('soft_eng.Trap');
 goog.require('soft_eng.Block');
+goog.require('soft_eng.Constants');
 
 // entrypoint
 soft_eng.Game = function() {
@@ -37,7 +38,7 @@ soft_eng.Game = function() {
 	
 	var ballAcceleration = {},
 	prevAcceleration = {};
-	
+	var startingPosition = null;
     var world = new b2World(new b2Vec2(0, 0), true);
 	
 	var maze = [
@@ -76,60 +77,36 @@ soft_eng.Game = function() {
 	var ball = null;
 	var goal = null;
 	var traps = [];
+	var cellSize = soft_eng.Constants.cellSize;
 	for(var col = 0; col < maze.length; col++) {
 		for(var row = 0; row < maze[col].length; row++) {
+			var pos = {};
+			pos.x = row * cellSize + cellSize/2;
+			pos.y = col * cellSize + cellSize/2;
 			if (maze[col][row] == MazeEnum.BALL) {
 				// Ball
-				var radius = 0.4;
-				ball = new soft_eng.Ball(radius, row, col, world);
-				
+				ball = new soft_eng.Ball(pos, world);
+				layer.appendChild(ball.sprite);
 			} else if (maze[col][row] == MazeEnum.GOAL) {
 				// Goal (Stationary)
-				var radius = 0.535;
-				goal = new soft_eng.Goal(radius, row, col, world);
-				// goal Sprite (lime)
-				var sprite = (new lime.Circle)
-					.setFill(0,100,100)
-					.setSize(radius * soft_eng.SCALE, radius * soft_eng.SCALE);
-				var position = goal.GetWorldCenter();
-				sprite.setPosition(position.x * soft_eng.SCALE, position.y * soft_eng.SCALE);
-				layer.appendChild(sprite);
-				
+				goal = new soft_eng.Goal(pos, world);
+				layer.appendChild(goal.sprite);
 			} else if (maze[col][row] == MazeEnum.TRAP) {
 				// Trap (Stationary)
-				var radius = 0.535;
-				var trap = new soft_eng.Trap(radius, row, col, world);
-				// trap Sprite (lime)
-				var sprite = (new lime.Circle)
-					.setFill(0,100,200)
-					.setSize(radius * soft_eng.SCALE, radius * soft_eng.SCALE);
-				var position = trap.GetWorldCenter();
-				sprite.setPosition(position.x * soft_eng.SCALE, position.y * soft_eng.SCALE);
-				layer.appendChild(sprite);
+				var trap = new soft_eng.Trap(pos, world);
+				layer.appendChild(trap.sprite);
 				
 				// TODO add trap holes to an array to be checked in the game loop (whether the ball went into a trap hole)
 				
 			} else if (maze[col][row] == MazeEnum.BLOCK) {
 				// Block (Stationary)
-				var side = 0.535;
-				var block = new soft_eng.Block(side, row, col, world);
+				var block = new soft_eng.Block(pos, world);
 				// block Sprite (lime)
-				var sprite = (new lime.Sprite).setFill(200,100,0).setSize(side * soft_eng.SCALE, side * soft_eng.SCALE);
-				var position = block.GetWorldCenter();
-				sprite.setPosition(position.x * soft_eng.SCALE, position.y * soft_eng.SCALE);
-				layer.appendChild(sprite);
+				layer.appendChild(block.sprite);
 			}
 		}
 	}
 	console.log("Exiting Maze loop");
-	
-	
-	// ball Sprite (lime)
-	var ballSprite = (new lime.Circle)
-		.setFill(new lime.fill.LinearGradient().addColorStop(0.49,200,0,0).addColorStop(.5,0,0,250))
-		.setSize(0.5 * soft_eng.SCALE, 0.5 * soft_eng.SCALE);
-	layer.appendChild(ballSprite);
-	
 	console.log("Entering Game loop");
 	
 	// http://stackoverflow.com/questions/12317040/box2dweb-walls-dont-bounce-a-slow-object
@@ -161,7 +138,7 @@ soft_eng.Game = function() {
 
 			// set the ball sprite's position and attach to ball object
 			var ballPos = ball.body.GetWorldCenter();
-			ballSprite.setPosition(ballPos.x * soft_eng.SCALE, ballPos.y * soft_eng.SCALE);
+			ball.sprite.setPosition(ballPos.x * soft_eng.SCALE, ballPos.y * soft_eng.SCALE);
 			// world.ClearForces(); // too expensive - we only have one moving body
 			ball.body.m_force.SetZero(); // ClearForces
 			ball.body.m_torque = 0.0; // ClearForces
