@@ -5,7 +5,7 @@ goog.require('soft_eng.Goal');
 goog.require('soft_eng.Trap');
 goog.require('soft_eng.Block');
 goog.require('soft_eng.Constants');
-
+goog.require('soft_eng.WorldListener');
 // entrypoint
 soft_eng.Game = function() {
 	console.log("begin");
@@ -38,7 +38,6 @@ soft_eng.Game = function() {
 	
 	var ballAcceleration = {},
 	prevAcceleration = {};
-	var startingPosition = null;
     var world = new b2World(new b2Vec2(0, 0), true);
 	
 	var maze = [
@@ -145,13 +144,12 @@ soft_eng.Game = function() {
 
 		}
 	}, this);
-	
+		
 	// onSuccess: Get a snapshot of the current acceleration
 	var onAccelerometerSuccess = function(acceleration) {
 		xLabel.setText('x: ' + acceleration.x); 
 		yLabel.setText('y: ' + acceleration.y); 
 		zLabel.setText('z: ' + acceleration.z);
-		console.log("Acceleration: " + acceleration);
 		ballAcceleration.x = acceleration.x;
 		ballAcceleration.y = acceleration.y;
 	}
@@ -164,6 +162,8 @@ soft_eng.Game = function() {
 	// Start listening for Accelerometer, set frequency
 	var options = { frequency: FRAME_RATE * 12 }; // this should be some multiple of the frame rate (in ms, rather than fraction) (24x12=288)
 	var watchID = navigator.accelerometer.watchAcceleration(onAccelerometerSuccess, onAccelerometerError, options);
+
+	world.SetContactListener(new soft_eng.WorldListener(ball.startingPosition));
 	
 	console.log("Exiting Game loop");
 	console.log("end");

@@ -16,6 +16,8 @@ soft_eng.Ball = function(pos, world)
 	this.bodyDef.position.x = pos.x;
 	this.bodyDef.position.y = pos.y;
 	
+	this.startingPosition = this.bodyDef.position;
+	
 	this.body = world.CreateBody(this.bodyDef);
 	this.body.CreateFixture(this.circleDef);
 	
