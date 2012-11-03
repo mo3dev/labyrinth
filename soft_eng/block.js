@@ -1,28 +1,30 @@
 goog.provide('soft_eng.Block');
 
-soft_eng.Block = function(side, row, col, world)
+soft_eng.Block = function(pos, world)
 {
 	var self = this;
-	var space = 0.535; // space allocated for each maze block (in a 28x20 maze)
+	var cellSize = soft_eng.Constants.cellSize; // space allocated for each maze block (in a 28x20 maze)
 	
-	var fixDef = new b2FixtureDef;
-	fixDef.density = 0.1;
-	fixDef.friction = 0.3;
-	fixDef.restitution = 0.0;
-	fixDef.shape = new b2PolygonShape;
-	fixDef.shape.SetAsBox(side/2, side/2); // it takes half the side (coord from the middle)
+	this.fixDef = new b2FixtureDef;
+	this.fixDef.density = 0.1;
+	this.fixDef.friction = 0.3;
+	this.fixDef.restitution = 0.0;
+	this.fixDef.shape = new b2PolygonShape;
+	this.fixDef.shape.SetAsBox(cellSize/2, cellSize/2);
 	
-	var bodyDef = new b2BodyDef;
-	bodyDef.type = b2Body.b2_staticBody; // walls don't move
-	bodyDef.position.x = row * space + space/2;
-	bodyDef.position.y = col * space + space/2;
+	this.bodyDef = new b2BodyDef();
+	this.bodyDef.type = b2Body.b2_staticBody; // walls don't move
+	this.bodyDef.position.x = pos.x;
+	this.bodyDef.position.y = pos.y;
     
-	var body = world.CreateBody(bodyDef);
-	body.CreateFixture(fixDef);
+	this.body = world.CreateBody(this.bodyDef);
+	this.body.CreateFixture(this.fixDef);
 	
 	// add a tag to the body object to represent the maze object type (goal, block, trap, ball)
 	var data = { "tag": MazeEnum.BLOCK };
-	body.SetUserData(data);
-	
-	return body;
+	this.body.SetUserData(data);
+	this.sprite = (new lime.Sprite)
+		.setFill(200,100,0)
+		.setSize(cellSize * soft_eng.SCALE, cellSize * soft_eng.SCALE)
+		.setPosition(this.body.GetWorldCenter().x * soft_eng.SCALE, this.body.GetWorldCenter().y * soft_eng.SCALE);
 }
