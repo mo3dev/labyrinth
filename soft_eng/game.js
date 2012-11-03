@@ -22,25 +22,6 @@ soft_eng.Game = function() {
 	b2CircleShape = Box2D.Collision.Shapes.b2CircleShape;
 	b2DebugDraw = Box2D.Dynamics.b2DebugDraw;
 	
-	// Start listening for Accelerometer, set frequency
-	var options = { frequency: 100 };
-	var watchID = navigator.accelerometer.watchAcceleration(onAccelerometerSuccess, onAccelerometerError, options);
-	
-	// onSuccess: Get a snapshot of the current acceleration
-	function onAccelerometerSuccess(acceleration) {
-		xLabel.setText('x: ' + acceleration.x); 
-		yLabel.setText('y: ' + acceleration.y); 
-		zLabel.setText('z: ' + acceleration.z);
-		console.log("Acceleration: " + acceleration);
-		ballAcceleration.x = acceleration.x * 25.0;
-		ballAcceleration.y = acceleration.y * 25.0;
-	}
-
-	// onError: Failed to get the acceleration
-	function onAccelerometerError() {
-		alert('onError!');
-	}
-	
 	var scene = new lime.Scene();
 	var layer = new lime.Layer();
 	layer.setPosition(0, 0);
@@ -150,12 +131,19 @@ soft_eng.Game = function() {
 	layer.appendChild(ballSprite);
 	
 	console.log("Entering Game loop");
+	
+	// http://stackoverflow.com/questions/12317040/box2dweb-walls-dont-bounce-a-slow-object
+	//Box2D.Common.b2Settings.b2_velocityThreshold = 0.0;
 	// game loop
-	lime.scheduleManager.setDisplayRate(24);
+	var FRAME_RATE = 12;
+	lime.scheduleManager.setDisplayRate(FRAME_RATE);
 	lime.scheduleManager.schedule(function(dt) {
-        world.Step(1 / 24, 6, 6);
+		//http://stackoverflow.com/questions/9451746/box2d-circular-body-stuck-in-corners
+		// setting to never sleep seems to negatively affect performance so reset the bool here
+		ball.body.SetAwake(true);
+        world.Step(1 / FRAME_RATE / 2, 6, 6);
 		
-		var kFilterFactor = 1.0;
+		var kFilterFactor = 0.9;
 		if (ballAcceleration.x && ballAcceleration.y) {
 			var accel = {};
 			if (prevAcceleration.x && prevAcceleration.y) {
@@ -165,20 +153,40 @@ soft_eng.Game = function() {
 				accel.x = ballAcceleration.x * -kFilterFactor;
 				accel.y = ballAcceleration.y * kFilterFactor;
 			}
-			
 			prevAcceleration.x = accel.x;
 			prevAcceleration.y = accel.y;
 
 			var newGravity = new b2Vec2(accel.x, accel.y);
 			world.SetGravity(newGravity); // set the world's gravity, the ball will move accordingly
+
+			// set the ball sprite's position and attach to ball object
+			var ballPos = ball.body.GetWorldCenter();
+			ballSprite.setPosition(ballPos.x * soft_eng.SCALE, ballPos.y * soft_eng.SCALE);
+			// world.ClearForces(); // too expensive - we only have one moving body
+			ball.body.m_force.SetZero(); // ClearForces
+			ball.body.m_torque = 0.0; // ClearForces
+
 		}
-		
-		// set the ball sprite's position and attach to ball object
-		var ballPos = ball.GetWorldCenter();
-		ballSprite.setPosition(ballPos.x * soft_eng.SCALE, ballPos.y * soft_eng.SCALE);
-		//world.ClearForces();
-		
 	}, this);
+	
+	// onSuccess: Get a snapshot of the current acceleration
+	var onAccelerometerSuccess = function(acceleration) {
+		xLabel.setText('x: ' + acceleration.x); 
+		yLabel.setText('y: ' + acceleration.y); 
+		zLabel.setText('z: ' + acceleration.z);
+		console.log("Acceleration: " + acceleration);
+		ballAcceleration.x = acceleration.x;
+		ballAcceleration.y = acceleration.y;
+	}
+
+	// onError: Failed to get the acceleration
+	var onAccelerometerError = function() {
+		alert('onError!');
+	}
+	
+	// Start listening for Accelerometer, set frequency
+	var options = { frequency: FRAME_RATE * 12 }; // this should be some multiple of the frame rate (in ms, rather than fraction) (24x12=288)
+	var watchID = navigator.accelerometer.watchAcceleration(onAccelerometerSuccess, onAccelerometerError, options);
 	
 	console.log("Exiting Game loop");
 	console.log("end");
