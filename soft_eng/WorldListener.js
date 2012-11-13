@@ -23,7 +23,11 @@ soft_eng.WorldListener = function(game) {
 		if (contactDataA == MazeEnum.BALL) {
 			if (contactDataB == MazeEnum.TRAP) {
                 var ballBody = contact.GetFixtureA().GetBody();
-				ballBody.SetPosition(ballBody.GetUserData().startingPosition);
+                var x = ballBody.GetUserData().ball.startingPosition;
+                console.log(x.x);
+                console.log(x.y);
+                game.addBall(ballBody.GetUserData().ball.startingPosition);
+                game.removeBall(ballBody.GetUserData().ball);
 			} else if (contactDataB == MazeEnum.GOAL) {
 				alert('You Win!');
 			}

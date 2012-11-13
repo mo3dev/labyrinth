@@ -26,6 +26,7 @@ soft_eng.Game = function() {
 	
 	var scene = new lime.Scene();
 	var layer = new lime.Layer();
+    var self = this;
 	layer.setPosition(0, 0);
 	scene.appendChild(layer);
 
@@ -40,7 +41,10 @@ soft_eng.Game = function() {
 	var ballAcceleration = {},
 	prevAcceleration = {};
     var world = new b2World(new b2Vec2(0, 0), true);
-	
+    var FRAME_RATE = 12;
+    var balls = [];
+    var goal = null;
+    var traps = [];
 	var maze = [
 		[4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
 		[4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
@@ -56,12 +60,12 @@ soft_eng.Game = function() {
 		[4, 4, 4, 4, 4, 4, 4, 0, 4, 0, 4, 4, 4, 0, 4, 4, 4, 4, 4, 4],
 		[4, 4, 4, 4, 4, 4, 4, 0, 4, 0, 4, 4, 4, 0, 4, 4, 4, 4, 4, 4],
 		[4, 4, 4, 4, 4, 4, 4, 0, 4, 0, 0, 0, 0, 0, 4, 4, 4, 4, 4, 4],
-		[4, 4, 4, 4, 4, 4, 0, 0, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
+		[4, 4, 4, 4, 4, 4, 1, 0, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
 		[4, 4, 4, 4, 4, 4, 0, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
-		[4, 4, 4, 0, 0, 0, 1, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 1, 4, 4],
-		[4, 4, 4, 0, 0, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0, 0, 1, 0, 4, 4],
+		[4, 4, 4, 0, 0, 0, 0, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 4, 4],
+		[4, 4, 4, 0, 0, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 4, 4],
+		[4, 4, 4, 0, 4, 4, 4, 4, 4, 4, 4, 0, 0, 0, 1, 0, 1, 0, 4, 4],
 		[4, 4, 4, 0, 4, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 4, 4],
-		[4, 4, 4, 0, 4, 4, 4, 4, 4, 4, 4, 0, 0, 0, 1, 0, 0, 0, 4, 4],
 		[4, 4, 4, 0, 4, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 4, 4],
 		[4, 4, 4, 0, 3, 4, 4, 4, 4, 4, 4, 4, 0, 4, 0, 4, 0, 4, 4, 4],
 		[4, 4, 4, 0, 4, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 4, 4],
@@ -72,83 +76,94 @@ soft_eng.Game = function() {
 		[4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4]
 	];
 	
-	
-	console.log("Entering Maze loop");
-    var balls = [];
-	var goal = null;
-	var traps = [];
-	var cellSize = soft_eng.Constants.cellSize;
-	for(var col = 0; col < maze.length; col++) {
-		for(var row = 0; row < maze[col].length; row++) {
-			var pos = {};
-			pos.x = row * cellSize + cellSize/2;
-			pos.y = col * cellSize + cellSize/2;
-			if (maze[col][row] == MazeEnum.BALL) {
-				// Ball
-                var b = new soft_eng.Ball(pos, world);
-				balls.push(b);
-				layer.appendChild(b.sprite);
-			} else if (maze[col][row] == MazeEnum.GOAL) {
-				// Goal (Stationary)
-				goal = new soft_eng.Goal(pos, world);
-				layer.appendChild(goal.sprite);
-			} else if (maze[col][row] == MazeEnum.TRAP) {
-				// Trap (Stationary)
-				var trap = new soft_eng.Trap(pos, world);
-				layer.appendChild(trap.sprite);
-				
-				// TODO add trap holes to an array to be checked in the game loop (whether the ball went into a trap hole)
-				
-			} else if (maze[col][row] == MazeEnum.BLOCK) {
-				// Block (Stationary)
-				var block = new soft_eng.Block(pos, world);
-				// block Sprite (lime)
-				layer.appendChild(block.sprite);
-			}
-		}
-	}
-	console.log("Exiting Maze loop");
-	console.log("Entering Game loop");
-	
-	// http://stackoverflow.com/questions/12317040/box2dweb-walls-dont-bounce-a-slow-object
-	//Box2D.Common.b2Settings.b2_velocityThreshold = 0.0;
-	// game loop
-	var FRAME_RATE = 12;
-	lime.scheduleManager.setDisplayRate(FRAME_RATE);
-	lime.scheduleManager.schedule(function(dt) {
-		//http://stackoverflow.com/questions/9451746/box2d-circular-body-stuck-in-corners
-		// setting to never sleep seems to negatively affect performance so reset the bool here
-        world.Step(1 / FRAME_RATE / 2, 6, 6);
-		
-		var kFilterFactor = 0.9;
-		if (ballAcceleration.x && ballAcceleration.y) {
-			var accel = {};
-			if (prevAcceleration.x && prevAcceleration.y) {
-				accel.x = ballAcceleration.x * -kFilterFactor + (1- kFilterFactor)*prevAcceleration.x;
-				accel.y = ballAcceleration.y * kFilterFactor + (1- kFilterFactor)*prevAcceleration.y;
-			} else {
-				accel.x = ballAcceleration.x * -kFilterFactor;
-				accel.y = ballAcceleration.y * kFilterFactor;
-			}
-			prevAcceleration.x = accel.x;
-			prevAcceleration.y = accel.y;
-
-			var newGravity = new b2Vec2(accel.x, accel.y);
-			world.SetGravity(newGravity); // set the world's gravity, the ball will move accordingly
-
-			// set the ball sprite's position and attach to ball object
-            for (var b in balls) {
-                var ball = balls[b];
-                ball.body.SetAwake(true);
-                var ballPos = ball.body.GetWorldCenter();
-                ball.sprite.setPosition(ballPos.x * soft_eng.SCALE, ballPos.y * soft_eng.SCALE);
-                // world.ClearForces(); // too expensive - we only have a few moving bodies
-                ball.body.m_force.SetZero(); // ClearForces
-                ball.body.m_torque = 0.0; // ClearForces
+    this.getScene = function() { return scene; };
+    this.getBalls = function() { return balls; };
+    this.addBall = function(pos) {
+        // Ball
+        var b = new soft_eng.Ball(pos, world);
+        balls.push(b);
+        layer.appendChild(b.sprite);
+    };
+    this.removeBall = function(ball) {
+        for (var x = 0; x < balls.length; x++) {
+            if (balls[x] === ball) {
+                ball.sprite.removeDomElement();
+                world.DestroyBody(ball.body);
+                balls.splice(x, 1);
             }
+        }
+    }
+	var startGame = function() {
+        console.log("Entering Maze loop");
+        var cellSize = soft_eng.Constants.cellSize;
+        for(var col = 0; col < maze.length; col++) {
+            for(var row = 0; row < maze[col].length; row++) {
+                var pos = {};
+                pos.x = row * cellSize + cellSize/2;
+                pos.y = col * cellSize + cellSize/2;
+                if (maze[col][row] == MazeEnum.BALL) {
+                    // Ball
+                    self.addBall(pos);
+                } else if (maze[col][row] == MazeEnum.GOAL) {
+                    // Goal (Stationary)
+                    goal = new soft_eng.Goal(pos, world);
+                    layer.appendChild(goal.sprite);
+                } else if (maze[col][row] == MazeEnum.TRAP) {
+                    // Trap (Stationary)
+                    var trap = new soft_eng.Trap(pos, world);
+                    layer.appendChild(trap.sprite);
+                    
+                    // TODO add trap holes to an array to be checked in the game loop (whether the ball went into a trap hole)
+                    
+                } else if (maze[col][row] == MazeEnum.BLOCK) {
+                    // Block (Stationary)
+                    var block = new soft_eng.Block(pos, world);
+                    // block Sprite (lime)
+                    layer.appendChild(block.sprite);
+                }
+            }
+        }
+        console.log("Exiting Maze loop");
+        console.log("Entering Game loop");
+        // http://stackoverflow.com/questions/12317040/box2dweb-walls-dont-bounce-a-slow-object
+        //Box2D.Common.b2Settings.b2_velocityThreshold = 0.0;
+        // game loop
+        lime.scheduleManager.setDisplayRate(FRAME_RATE);
+        lime.scheduleManager.schedule(function(dt) {
+            //http://stackoverflow.com/questions/9451746/box2d-circular-body-stuck-in-corners
+            // setting to never sleep seems to negatively affect performance so reset the bool here
+            world.Step(1 / FRAME_RATE / 2, 6, 6);
+            
+            var kFilterFactor = 0.6;
+            if (ballAcceleration.x && ballAcceleration.y) {
+                var accel = {};
+                if (prevAcceleration.x && prevAcceleration.y) {
+                    accel.x = ballAcceleration.x * -kFilterFactor + (1- kFilterFactor)*prevAcceleration.x;
+                    accel.y = ballAcceleration.y * kFilterFactor + (1- kFilterFactor)*prevAcceleration.y;
+                } else {
+                    accel.x = ballAcceleration.x * -kFilterFactor;
+                    accel.y = ballAcceleration.y * kFilterFactor;
+                }
+                prevAcceleration.x = accel.x;
+                prevAcceleration.y = accel.y;
 
-		}
-	}, this);
+                var newGravity = new b2Vec2(accel.x, accel.y);
+                world.SetGravity(newGravity); // set the world's gravity, the ball will move accordingly
+
+                // set the ball sprite's position and attach to ball object
+                for (var b in balls) {
+                    var ball = balls[b];
+                    ball.body.SetAwake(true);
+                    var ballPos = ball.body.GetWorldCenter();
+                    ball.sprite.setPosition(ballPos.x * soft_eng.SCALE, ballPos.y * soft_eng.SCALE);
+                    // world.ClearForces(); // too expensive - we only have a few moving bodies
+                    ball.body.m_force.SetZero(); // ClearForces
+                    ball.body.m_torque = 0.0; // ClearForces
+                }
+
+            }
+        }, this);
+    }
 		
 	// onSuccess: Get a snapshot of the current acceleration
 	var onAccelerometerSuccess = function(acceleration) {
@@ -172,7 +187,5 @@ soft_eng.Game = function() {
 	
 	console.log("Exiting Game loop");
 	console.log("end");
-	
-    this.getScene = function() { return scene; };
-    this.getBalls = function() { return balls; };
+    startGame();
 }

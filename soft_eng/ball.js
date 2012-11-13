@@ -21,7 +21,7 @@ soft_eng.Ball = function(pos, world) {
 	this.body.CreateFixture(this.circleDef);
 	
 	// add a tag to the body object to represent the maze object type (goal, block, trap, ball)
-	var data = { "tag": MazeEnum.BALL, "startingPosition": this.startingPosition };
+	var data = { "tag": MazeEnum.BALL, "startingPosition": this.startingPosition, "ball": this };
 	this.body.SetUserData(data);
 	
 	this.sprite = (new lime.Circle)
