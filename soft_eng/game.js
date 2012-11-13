@@ -6,6 +6,7 @@ goog.require('soft_eng.Trap');
 goog.require('soft_eng.Block');
 goog.require('soft_eng.Constants');
 goog.require('soft_eng.WorldListener');
+
 // entrypoint
 soft_eng.Game = function() {
 	console.log("begin");
@@ -57,14 +58,14 @@ soft_eng.Game = function() {
 		[4, 4, 4, 4, 4, 4, 4, 0, 4, 0, 0, 0, 0, 0, 4, 4, 4, 4, 4, 4],
 		[4, 4, 4, 4, 4, 4, 0, 0, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
 		[4, 4, 4, 4, 4, 4, 0, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
-		[4, 4, 4, 0, 0, 0, 0, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
-		[4, 4, 4, 0, 0, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
-		[4, 4, 4, 0, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
-		[4, 4, 4, 0, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
-		[4, 4, 4, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
-		[4, 4, 4, 0, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
-		[4, 4, 4, 0, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
-		[4, 4, 4, 0, 0, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
+		[4, 4, 4, 0, 0, 0, 1, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 1, 4, 4],
+		[4, 4, 4, 0, 0, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0, 0, 1, 0, 4, 4],
+		[4, 4, 4, 0, 4, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 4, 4],
+		[4, 4, 4, 0, 4, 4, 4, 4, 4, 4, 4, 0, 0, 0, 1, 0, 0, 0, 4, 4],
+		[4, 4, 4, 0, 4, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 4, 4],
+		[4, 4, 4, 0, 3, 4, 4, 4, 4, 4, 4, 4, 0, 4, 0, 4, 0, 4, 4, 4],
+		[4, 4, 4, 0, 4, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 4, 4],
+		[4, 4, 4, 0, 0, 4, 4, 4, 4, 4, 4, 0, 4, 0, 4, 0, 4, 0, 4, 4],
 		[4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4],
 		[4, 0, 0, 4, 0, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 0, 4],
 		[4, 4, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4],
@@ -73,7 +74,7 @@ soft_eng.Game = function() {
 	
 	
 	console.log("Entering Maze loop");
-	var ball = null;
+    var balls = [];
 	var goal = null;
 	var traps = [];
 	var cellSize = soft_eng.Constants.cellSize;
@@ -84,8 +85,9 @@ soft_eng.Game = function() {
 			pos.y = col * cellSize + cellSize/2;
 			if (maze[col][row] == MazeEnum.BALL) {
 				// Ball
-				ball = new soft_eng.Ball(pos, world);
-				layer.appendChild(ball.sprite);
+                var b = new soft_eng.Ball(pos, world);
+				balls.push(b);
+				layer.appendChild(b.sprite);
 			} else if (maze[col][row] == MazeEnum.GOAL) {
 				// Goal (Stationary)
 				goal = new soft_eng.Goal(pos, world);
@@ -116,7 +118,6 @@ soft_eng.Game = function() {
 	lime.scheduleManager.schedule(function(dt) {
 		//http://stackoverflow.com/questions/9451746/box2d-circular-body-stuck-in-corners
 		// setting to never sleep seems to negatively affect performance so reset the bool here
-		ball.body.SetAwake(true);
         world.Step(1 / FRAME_RATE / 2, 6, 6);
 		
 		var kFilterFactor = 0.9;
@@ -136,11 +137,15 @@ soft_eng.Game = function() {
 			world.SetGravity(newGravity); // set the world's gravity, the ball will move accordingly
 
 			// set the ball sprite's position and attach to ball object
-			var ballPos = ball.body.GetWorldCenter();
-			ball.sprite.setPosition(ballPos.x * soft_eng.SCALE, ballPos.y * soft_eng.SCALE);
-			// world.ClearForces(); // too expensive - we only have one moving body
-			ball.body.m_force.SetZero(); // ClearForces
-			ball.body.m_torque = 0.0; // ClearForces
+            for (var b in balls) {
+                var ball = balls[b];
+                ball.body.SetAwake(true);
+                var ballPos = ball.body.GetWorldCenter();
+                ball.sprite.setPosition(ballPos.x * soft_eng.SCALE, ballPos.y * soft_eng.SCALE);
+                // world.ClearForces(); // too expensive - we only have a few moving bodies
+                ball.body.m_force.SetZero(); // ClearForces
+                ball.body.m_torque = 0.0; // ClearForces
+            }
 
 		}
 	}, this);
@@ -163,10 +168,11 @@ soft_eng.Game = function() {
 	var options = { frequency: FRAME_RATE * 12 }; // this should be some multiple of the frame rate (in ms, rather than fraction) (24x12=288)
 	var watchID = navigator.accelerometer.watchAcceleration(onAccelerometerSuccess, onAccelerometerError, options);
 
-	world.SetContactListener(new soft_eng.WorldListener(ball.startingPosition));
+	world.SetContactListener(new soft_eng.WorldListener(this));
 	
 	console.log("Exiting Game loop");
 	console.log("end");
 	
-	return scene;
+    this.getScene = function() { return scene; };
+    this.getBalls = function() { return balls; };
 }

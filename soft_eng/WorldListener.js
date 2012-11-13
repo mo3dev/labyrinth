@@ -1,9 +1,9 @@
 goog.provide('soft_eng.WorldListener');
 
-soft_eng.WorldListener = function(startingPosition) {
+soft_eng.WorldListener = function(game) {
 	var b2Listener = Box2D.Dynamics.b2ContactListener;
 	var self = this;
-	self.startingPosition = startingPosition;
+    this.game = game;
 	//Add listeners for contact
 	var listener = new b2Listener;
 
@@ -22,10 +22,10 @@ soft_eng.WorldListener = function(startingPosition) {
 		console.log(impulse);
 		if (contactDataA == MazeEnum.BALL) {
 			if (contactDataB == MazeEnum.TRAP) {
-				contact.GetFixtureA().GetBody().position = self.startingPosition;
-				alert('trap ' + 'startpos = ' + self.startingPosition);
+                var ballBody = contact.GetFixtureA().GetBody();
+				ballBody.SetPosition(ballBody.GetUserData().startingPosition);
 			} else if (contactDataB == MazeEnum.GOAL) {
-				alert('goal');
+				alert('You Win!');
 			}
 		}
 	}

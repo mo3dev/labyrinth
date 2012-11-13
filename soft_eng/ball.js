@@ -1,14 +1,13 @@
 goog.provide('soft_eng.Ball');
-
-soft_eng.Ball = function(pos, world)
-{
+goog.require('goog.object');
+soft_eng.Ball = function(pos, world) {
 	var radius = 0.4;
 	var self = this;
 	
 	this.circleDef = new b2FixtureDef();
 	this.circleDef.shape = new b2CircleShape(radius/2);
 	this.circleDef.density = 0.5;
-	this.circleDef.restitution = 0.2;
+	this.circleDef.restitution = 0.0;
 	this.circleDef.friction = 0.0;
 
 	this.bodyDef = new b2BodyDef();
@@ -16,13 +15,13 @@ soft_eng.Ball = function(pos, world)
 	this.bodyDef.position.x = pos.x;
 	this.bodyDef.position.y = pos.y;
 	
-	this.startingPosition = this.bodyDef.position;
+	this.startingPosition = goog.object.clone(pos);
 	
 	this.body = world.CreateBody(this.bodyDef);
 	this.body.CreateFixture(this.circleDef);
 	
 	// add a tag to the body object to represent the maze object type (goal, block, trap, ball)
-	var data = { "tag": MazeEnum.BALL };
+	var data = { "tag": MazeEnum.BALL, "startingPosition": this.startingPosition };
 	this.body.SetUserData(data);
 	
 	this.sprite = (new lime.Circle)
