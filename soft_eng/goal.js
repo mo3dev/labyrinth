@@ -26,6 +26,6 @@ soft_eng.Goal = function(pos, world)
 	
 	this.sprite = (new lime.Circle)
 		.setFill(0,100,100)
-		.setSize(radius * soft_eng.SCALE, radius * soft_eng.SCALE)
+		.setSize(soft_eng.Constants.cellSize * soft_eng.SCALE, soft_eng.Constants.cellSize * soft_eng.SCALE)
 		.setPosition(this.body.GetWorldCenter().x * soft_eng.SCALE, this.body.GetWorldCenter().y * soft_eng.SCALE);
 }

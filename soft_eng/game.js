@@ -6,9 +6,11 @@ goog.require('soft_eng.Trap');
 goog.require('soft_eng.Block');
 goog.require('soft_eng.Constants');
 goog.require('soft_eng.WorldListener');
+goog.require('soft_eng.WorldListener');
+goog.require("Levels");
 
 // entrypoint
-soft_eng.Game = function(level) {
+soft_eng.Game = function(director, level) {
 	console.log("begin");
 	// maze object type enum
 	MazeEnum = {"EMPTY": 0, "BALL": 1, "GOAL": 2, "TRAP": 3, "BLOCK": 4};
@@ -45,37 +47,8 @@ soft_eng.Game = function(level) {
     var balls = [];
     var goal = null;
     var traps = [];
-	var maze = [
-		[4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
-		[4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
-		[4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 3, 2, 4, 4],
-		[4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 0, 4, 4],
-		[4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 3, 4, 4, 3, 0, 3, 4],
-		[4, 4, 4, 4, 4, 4, 4, 0, 0, 0, 4, 4, 4, 4, 4, 0, 0, 0, 0, 4],
-		[4, 4, 4, 4, 4, 4, 4, 0, 4, 0, 4, 4, 4, 4, 3, 0, 4, 4, 4, 4],
-		[4, 4, 4, 4, 4, 4, 4, 0, 4, 0, 4, 4, 4, 4, 4, 0, 4, 4, 4, 4],
-		[4, 4, 4, 4, 4, 4, 4, 0, 4, 0, 4, 4, 4, 4, 4, 0, 4, 4, 4, 4],
-		[4, 4, 4, 4, 4, 4, 4, 0, 4, 0, 3, 4, 4, 4, 4, 0, 4, 4, 4, 4],
-		[4, 4, 4, 4, 4, 4, 4, 0, 4, 0, 4, 4, 4, 0, 0, 0, 4, 3, 4, 4],
-		[4, 4, 4, 4, 4, 4, 4, 0, 4, 0, 4, 4, 4, 0, 4, 4, 4, 4, 4, 4],
-		[4, 4, 4, 4, 4, 4, 4, 0, 4, 0, 4, 4, 4, 0, 4, 4, 4, 4, 4, 4],
-		[4, 4, 4, 4, 4, 4, 4, 0, 4, 0, 0, 0, 0, 0, 4, 4, 4, 4, 4, 4],
-		[4, 4, 4, 4, 4, 4, 1, 0, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
-		[4, 4, 4, 4, 4, 4, 0, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
-		[4, 4, 4, 0, 0, 0, 0, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 4, 4],
-		[4, 4, 4, 0, 0, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 4, 4],
-		[4, 4, 4, 0, 4, 4, 4, 4, 4, 4, 4, 0, 0, 0, 1, 0, 1, 0, 4, 4],
-		[4, 4, 4, 0, 4, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 4, 4],
-		[4, 4, 4, 0, 4, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 4, 4],
-		[4, 4, 4, 0, 3, 4, 4, 4, 4, 4, 4, 4, 0, 4, 0, 4, 0, 4, 4, 4],
-		[4, 4, 4, 0, 4, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 4, 4],
-		[4, 4, 4, 0, 0, 4, 4, 4, 4, 4, 4, 0, 4, 0, 4, 0, 4, 0, 4, 4],
-		[4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4],
-		[4, 0, 0, 4, 0, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 0, 4],
-		[4, 4, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4],
-		[4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4]
-	];
-	
+    
+	this.director = director;
     this.getScene = function() { return scene; };
     this.getBalls = function() { return balls; };
     this.addBall = function(pos) {
@@ -97,6 +70,7 @@ soft_eng.Game = function(level) {
 	var startGame = function() {
         console.log("Entering Maze loop");
         var cellSize = soft_eng.Constants.cellSize;
+        var maze = Levels[level % Levels.length];
         for(var col = 0; col < maze.length; col++) {
             for(var row = 0; row < maze[col].length; row++) {
                 var pos = {};
@@ -130,7 +104,8 @@ soft_eng.Game = function(level) {
         //Box2D.Common.b2Settings.b2_velocityThreshold = 0.0;
         // game loop
         lime.scheduleManager.setDisplayRate(FRAME_RATE);
-        lime.scheduleManager.schedule(function(dt) {
+        
+        var worldStep = function(dt) {
             //http://stackoverflow.com/questions/9451746/box2d-circular-body-stuck-in-corners
             // setting to never sleep seems to negatively affect performance so reset the bool here
             world.Step(1 / FRAME_RATE, 8, 3);
@@ -169,11 +144,18 @@ soft_eng.Game = function(level) {
                     ball.body.m_torque = 0.0; // ClearForces
                 }
             }
-        }, this);
-        if (balls.length == 0) {
-			alert("YAY");
-		}
-		console.log("balls.length = " + balls.length);
+			if (balls.length < 1) {
+				lime.scheduleManager.unschedule(this, null);
+				//console.log("OUT OF BALLS");
+				//alert("YAY");
+				navigator.accelerometer.clearWatch(watchID);
+				watchID = null;
+				self.director.replaceScene(self.director, ++level);
+			}
+			console.log("balls.length = " + balls.length);
+        };
+        
+        lime.scheduleManager.schedule(worldStep, this);
     };
 		
 	// onSuccess: Get a snapshot of the current acceleration
