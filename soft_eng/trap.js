@@ -3,7 +3,7 @@ goog.provide('soft_eng.Trap');
 soft_eng.Trap = function(pos, world)
 {
 	var self = this;
-	var radius = soft_eng.Constants.cellSize/2; // space allocated for each maze block (in a 28x20 maze)
+	var radius = soft_eng.Constants.cellSize/4; // space allocated for each maze block (in a 28x20 maze)
 	var cellSize = soft_eng.Constants.cellSize;
 	this.circleDef = new b2FixtureDef;
 	this.circleDef.shape = new b2CircleShape(radius/2);

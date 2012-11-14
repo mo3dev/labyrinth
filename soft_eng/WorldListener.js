@@ -18,18 +18,19 @@ soft_eng.WorldListener = function(game) {
 	listener.PostSolve = function(contact, impulse) {
 		var contactDataA = contact.GetFixtureA().GetBody().GetUserData().tag;
 		var contactDataB = contact.GetFixtureB().GetBody().GetUserData().tag;
-		console.log(contact);
-		console.log(impulse);
+		//console.log(device.platform);
+		// don't think you can call vibrate here b/c it's during the step
+		//if (device.platform.indexOf("Android") > -1) {
+		//	navigator.notification.vibrate(50);
+		//}
 		if (contactDataA == MazeEnum.BALL) {
 			if (contactDataB == MazeEnum.TRAP) {
-                var ballBody = contact.GetFixtureA().GetBody();
-                var x = ballBody.GetUserData().ball.startingPosition;
-                console.log(x.x);
-                console.log(x.y);
-                game.addBall(ballBody.GetUserData().ball.startingPosition);
-                game.removeBall(ballBody.GetUserData().ball);
+                var ballData = contact.GetFixtureA().GetBody().GetUserData();
+                ballData.flaggedForDeletion = true;
 			} else if (contactDataB == MazeEnum.GOAL) {
-				alert('You Win!');
+				var ballData = contact.GetFixtureA().GetBody().GetUserData();
+                ballData.flaggedForDeletion = true;
+                ballData.hasReachedTheGoal = true;
 			}
 		}
 	}

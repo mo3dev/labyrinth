@@ -2,7 +2,7 @@ goog.provide('soft_eng.Goal');
 
 soft_eng.Goal = function(pos, world)
 {
-	var radius = 0.3;
+	var radius = soft_eng.Constants.cellSize/4;
 	var self = this;
 	var space = 0.535; // space allocated for each maze block (in a 28x20 maze)
 	

@@ -8,7 +8,7 @@ goog.require('soft_eng.Constants');
 goog.require('soft_eng.WorldListener');
 
 // entrypoint
-soft_eng.Game = function() {
+soft_eng.Game = function(level) {
 	console.log("begin");
 	// maze object type enum
 	MazeEnum = {"EMPTY": 0, "BALL": 1, "GOAL": 2, "TRAP": 3, "BLOCK": 4};
@@ -41,7 +41,7 @@ soft_eng.Game = function() {
 	var ballAcceleration = {},
 	prevAcceleration = {};
     var world = new b2World(new b2Vec2(0, 0), true);
-    var FRAME_RATE = 12;
+    var FRAME_RATE = 24;
     var balls = [];
     var goal = null;
     var traps = [];
@@ -87,9 +87,10 @@ soft_eng.Game = function() {
     this.removeBall = function(ball) {
         for (var x = 0; x < balls.length; x++) {
             if (balls[x] === ball) {
-                ball.sprite.removeDomElement();
+                ball.sprite.setHidden(true);
                 world.DestroyBody(ball.body);
                 balls.splice(x, 1);
+                console.log("balls.length = " + balls.length);
             }
         }
     }
@@ -132,9 +133,9 @@ soft_eng.Game = function() {
         lime.scheduleManager.schedule(function(dt) {
             //http://stackoverflow.com/questions/9451746/box2d-circular-body-stuck-in-corners
             // setting to never sleep seems to negatively affect performance so reset the bool here
-            world.Step(1 / FRAME_RATE / 2, 6, 6);
+            world.Step(1 / FRAME_RATE, 8, 3);
             
-            var kFilterFactor = 0.6;
+            var kFilterFactor = 0.2;
             if (ballAcceleration.x && ballAcceleration.y) {
                 var accel = {};
                 if (prevAcceleration.x && prevAcceleration.y) {
@@ -153,6 +154,13 @@ soft_eng.Game = function() {
                 // set the ball sprite's position and attach to ball object
                 for (var b in balls) {
                     var ball = balls[b];
+                    if (ball.body.GetUserData().flaggedForDeletion) {
+						if (!ball.body.GetUserData().hasReachedTheGoal) {
+							self.addBall(ball.startingPosition);
+						}
+						self.removeBall(ball);
+						continue;
+					}
                     ball.body.SetAwake(true);
                     var ballPos = ball.body.GetWorldCenter();
                     ball.sprite.setPosition(ballPos.x * soft_eng.SCALE, ballPos.y * soft_eng.SCALE);
@@ -160,10 +168,13 @@ soft_eng.Game = function() {
                     ball.body.m_force.SetZero(); // ClearForces
                     ball.body.m_torque = 0.0; // ClearForces
                 }
-
             }
         }, this);
-    }
+        if (balls.length == 0) {
+			alert("YAY");
+		}
+		console.log("balls.length = " + balls.length);
+    };
 		
 	// onSuccess: Get a snapshot of the current acceleration
 	var onAccelerometerSuccess = function(acceleration) {
@@ -172,12 +183,12 @@ soft_eng.Game = function() {
 		zLabel.setText('z: ' + acceleration.z);
 		ballAcceleration.x = acceleration.x;
 		ballAcceleration.y = acceleration.y;
-	}
+	};
 
 	// onError: Failed to get the acceleration
 	var onAccelerometerError = function() {
 		alert('onError!');
-	}
+	};
 	
 	// Start listening for Accelerometer, set frequency
 	var options = { frequency: FRAME_RATE * 12 }; // this should be some multiple of the frame rate (in ms, rather than fraction) (24x12=288)
