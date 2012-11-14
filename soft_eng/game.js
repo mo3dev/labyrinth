@@ -12,6 +12,7 @@ goog.require("Levels");
 // entrypoint
 soft_eng.Game = function(director, level) {
 	console.log("begin");
+	var startDate = new Date();
 	// maze object type enum
 	MazeEnum = {"EMPTY": 0, "BALL": 1, "GOAL": 2, "TRAP": 3, "BLOCK": 4};
 	
@@ -31,6 +32,9 @@ soft_eng.Game = function(director, level) {
     var self = this;
 	layer.setPosition(0, 0);
 	scene.appendChild(layer);
+	
+	backgroundSprite = new lime.Sprite().setSize(soft_eng.WIDTH, soft_eng.HEIGHT).setFill('#ffffff').setAnchorPoint(0,0);
+	layer.appendChild(backgroundSprite);
 
 	//debugging labels
 	var xLabel = new lime.Label('x: ').setAnchorPoint(0, 0).setPosition(20, 20);
@@ -112,7 +116,7 @@ soft_eng.Game = function(director, level) {
             
             var kFilterFactor = 0.2;
             if (ballAcceleration.x && ballAcceleration.y) {
-                var accel = {};
+                /*var accel = {};
                 if (prevAcceleration.x && prevAcceleration.y) {
                     accel.x = ballAcceleration.x * -kFilterFactor + (1- kFilterFactor)*prevAcceleration.x;
                     accel.y = ballAcceleration.y * kFilterFactor + (1- kFilterFactor)*prevAcceleration.y;
@@ -123,7 +127,8 @@ soft_eng.Game = function(director, level) {
                 prevAcceleration.x = accel.x;
                 prevAcceleration.y = accel.y;
 
-                var newGravity = new b2Vec2(accel.x, accel.y);
+                var newGravity = new b2Vec2(accel.x, accel.y);*/
+				var newGravity = new b2Vec2(-ballAcceleration.x/10, ballAcceleration.y/10);
                 world.SetGravity(newGravity); // set the world's gravity, the ball will move accordingly
 
                 // set the ball sprite's position and attach to ball object
@@ -145,12 +150,12 @@ soft_eng.Game = function(director, level) {
                 }
             }
 			if (balls.length < 1) {
-				lime.scheduleManager.unschedule(this, null);
-				//console.log("OUT OF BALLS");
-				//alert("YAY");
+				lime.scheduleManager.unschedule(worldStep, this);
 				navigator.accelerometer.clearWatch(watchID);
 				watchID = null;
-				self.director.replaceScene(self.director, ++level);
+				
+				levelFinishedAlert()
+				
 			}
 			console.log("balls.length = " + balls.length);
         };
@@ -177,6 +182,30 @@ soft_eng.Game = function(director, level) {
 	var watchID = navigator.accelerometer.watchAcceleration(onAccelerometerSuccess, onAccelerometerError, options);
 
 	world.SetContactListener(new soft_eng.WorldListener(this));
+	
+	// phonegap alert is better than a normal javascript alert.
+	var levelFinishedAlert = function() {
+		endDate = new Date();
+		elapsedSeconds = (endDate - startDate)/1000;
+		
+		navigator.notification.confirm(
+		'You have solved the maze in: ' + elapsedSeconds + ' seconds.', // message
+		onLevelFinishedAlertConfirm, // callback
+		'Well done!',            	// title
+		'Continue,Quit'          		// actions. this can be 'Continue,Quit,etc..'
+		);
+	};
+	// this controls what to do when a button is pressed (could be multiple actions based on the button choice)
+	var onLevelFinishedAlertConfirm = function(button) {
+		if (button == 1) {
+			// new level
+			newLevel = new soft_eng.Game(self.director, ++level).getScene();
+			soft_eng.director.replaceScene(newLevel);
+		}
+		if (button == 2) {
+			soft_eng.loadMainMenu();
+		}
+	};
 	
 	console.log("Exiting Game loop");
 	console.log("end");

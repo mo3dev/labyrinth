@@ -20,9 +20,9 @@ soft_eng.WorldListener = function(game) {
 		var contactDataB = contact.GetFixtureB().GetBody().GetUserData().tag;
 		//console.log(device.platform);
 		// don't think you can call vibrate here b/c it's during the step
-		//if (device.platform.indexOf("Android") > -1) {
-		//	navigator.notification.vibrate(50);
-		//}
+		if (device.platform.indexOf("Android") > -1) {
+			//navigator.notification.vibrate(50);
+		}
 		if (contactDataA == MazeEnum.BALL) {
 			if (contactDataB == MazeEnum.TRAP) {
                 var ballData = contact.GetFixtureA().GetBody().GetUserData();

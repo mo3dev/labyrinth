@@ -24,7 +24,7 @@ soft_eng.Trap = function(pos, world)
 	this.body.SetUserData(data);
 	
 	this.sprite = (new lime.Circle())
-		.setFill(0,100,200)
+		.setFill(0,0,0)
 		.setSize(cellSize * soft_eng.SCALE, cellSize * soft_eng.SCALE)
 		.setPosition(this.body.GetWorldCenter().x * soft_eng.SCALE, this.body.GetWorldCenter().y * soft_eng.SCALE);
 }
