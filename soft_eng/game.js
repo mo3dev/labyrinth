@@ -151,11 +151,9 @@ soft_eng.Game = function(director, level) {
                 }
             }
 			if (balls.length < 1) {
-				lime.scheduleManager.unschedule(worldStep, this);
-				navigator.accelerometer.clearWatch(watchID);
-				watchID = null;
+				dispose();
 				
-				levelFinishedAlert()
+				levelFinishedAlert();
 				
 			}
 			console.log("balls.length = " + balls.length);
@@ -163,6 +161,8 @@ soft_eng.Game = function(director, level) {
         
         lime.scheduleManager.schedule(worldStep, this);
     };
+	
+	
 		
 	// onSuccess: Get a snapshot of the current acceleration
 	var onAccelerometerSuccess = function(acceleration) {
@@ -183,6 +183,12 @@ soft_eng.Game = function(director, level) {
 	var watchID = navigator.accelerometer.watchAcceleration(onAccelerometerSuccess, onAccelerometerError, options);
 
 	world.SetContactListener(new soft_eng.WorldListener(this));
+	
+	var dispose = function() {
+		lime.scheduleManager.unschedule(worldStep, this);
+		navigator.accelerometer.clearWatch(watchID);
+		watchID = null;
+	};
 	
 	// phonegap alert is better than a normal javascript alert.
 	var levelFinishedAlert = function() {
@@ -207,6 +213,29 @@ soft_eng.Game = function(director, level) {
 			soft_eng.loadMainMenu();
 		}
 	};
+	
+	var showMenu = function() {
+		//this.director.setPaused(true);
+		navigator.notification.confirm(
+		'Why would you want to quit my game JERK?', // message
+		continueGame, // callback
+		'Game Paused',            	// title
+		'Continue,Quit'          		// actions. this can be 'Continue,Quit,etc..'
+		);
+	};
+	
+	var continueGame = function(button) {
+		//this.director.setPaused(false);
+		if (button == 2) {
+			//dispose();
+			soft_eng.loadMainMenu();
+		}
+	};
+	
+	setTimeout(function() {
+		goog.events.listen(scene, 'click', showMenu);
+	}, 500);
+	
 	
 	console.log("Exiting Game loop");
 	console.log("end");
