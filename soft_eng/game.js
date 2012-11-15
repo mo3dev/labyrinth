@@ -47,10 +47,11 @@ soft_eng.Game = function(director, level) {
 	var ballAcceleration = {},
 	prevAcceleration = {};
     var world = new b2World(new b2Vec2(0, 0), true);
-    var FRAME_RATE = 24;
+    var FRAME_RATE = 18;
     var balls = [];
     var goal = null;
     var traps = [];
+    this.timesTrapped = 0;
     
 	this.director = director;
     this.getScene = function() { return scene; };
@@ -128,7 +129,7 @@ soft_eng.Game = function(director, level) {
                 prevAcceleration.y = accel.y;
 
                 var newGravity = new b2Vec2(accel.x, accel.y);*/
-				var newGravity = new b2Vec2(-ballAcceleration.x/10, ballAcceleration.y/10);
+		var newGravity = new b2Vec2(-ballAcceleration.x/6, ballAcceleration.y/6);
                 world.SetGravity(newGravity); // set the world's gravity, the ball will move accordingly
 
                 // set the ball sprite's position and attach to ball object
@@ -189,7 +190,7 @@ soft_eng.Game = function(director, level) {
 		elapsedSeconds = (endDate - startDate)/1000;
 		
 		navigator.notification.confirm(
-		'You have solved the maze in: ' + elapsedSeconds + ' seconds.', // message
+		'You have solved the maze in: ' + elapsedSeconds + ' seconds.\nTrapped ' + self.timesTrapped + " times.", // message
 		onLevelFinishedAlertConfirm, // callback
 		'Well done!',            	// title
 		'Continue,Quit'          		// actions. this can be 'Continue,Quit,etc..'

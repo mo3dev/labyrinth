@@ -27,6 +27,7 @@ soft_eng.WorldListener = function(game) {
 			if (contactDataB == MazeEnum.TRAP) {
                 var ballData = contact.GetFixtureA().GetBody().GetUserData();
                 ballData.flaggedForDeletion = true;
+		game.timesTrapped++;
 			} else if (contactDataB == MazeEnum.GOAL) {
 				var ballData = contact.GetFixtureA().GetBody().GetUserData();
                 ballData.flaggedForDeletion = true;
