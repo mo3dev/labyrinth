@@ -2,7 +2,7 @@ goog.provide('soft_eng.Goal');
 
 soft_eng.Goal = function(pos, world)
 {
-	var radius = 0.3;
+	var radius = soft_eng.Constants.cellSize/4;
 	var self = this;
 	var space = 0.535; // space allocated for each maze block (in a 28x20 maze)
 	
@@ -26,6 +26,6 @@ soft_eng.Goal = function(pos, world)
 	
 	this.sprite = (new lime.Circle)
 		.setFill(0,100,100)
-		.setSize(radius * soft_eng.SCALE, radius * soft_eng.SCALE)
+		.setSize(soft_eng.Constants.cellSize * soft_eng.SCALE, soft_eng.Constants.cellSize * soft_eng.SCALE)
 		.setPosition(this.body.GetWorldCenter().x * soft_eng.SCALE, this.body.GetWorldCenter().y * soft_eng.SCALE);
 }

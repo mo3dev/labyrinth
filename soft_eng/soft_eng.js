@@ -22,7 +22,6 @@ soft_eng.SCALE = 30.0; // for box2d (pixels/meter)
 soft_eng.WIDTH = 320;
 soft_eng.HEIGHT = 450;
 
-
 // entrypoint, pre-flight checks..
 soft_eng.start = function() {
 	// check all requirements (accelerometer, etc...)
@@ -82,7 +81,7 @@ soft_eng.loadMainMenu = function() {
 // load new game scene
 soft_eng.newGame = function() {
 	//alert('PLAY TIIIME');
-    var scene = new soft_eng.Game();
+    var scene = new soft_eng.Game(soft_eng.director, 0).getScene();
 	soft_eng.director.replaceScene(scene);
 };
 
