@@ -151,7 +151,9 @@ soft_eng.Game = function(director, level) {
                 }
             }
 			if (balls.length < 1) {
-				dispose();
+				lime.scheduleManager.unschedule(worldStep, this);
+				navigator.accelerometer.clearWatch(watchID);
+				watchID = null;
 				
 				levelFinishedAlert();
 				
