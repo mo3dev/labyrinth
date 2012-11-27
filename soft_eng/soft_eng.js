@@ -45,7 +45,7 @@ soft_eng.loadMainMenu = function() {
 	var scene = new lime.Scene(),
 	layer = new lime.Layer().setPosition(soft_eng.WIDTH / 2, 0);
 	
-	var title = new lime.Sprite().setFill('/assets/main_title.jpg').setPosition(0, 0);
+	var title = new lime.Sprite().setFill('assets/main_title.jpg').setPosition(0, 0);
 	//title.qualityRenderer = true;
 	layer.appendChild(title);
 	

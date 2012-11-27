@@ -24,7 +24,7 @@ soft_eng.Block = function(pos, world)
 	var data = { "tag": MazeEnum.BLOCK };
 	this.body.SetUserData(data);
 	this.sprite = (new lime.Sprite)
-		.setFill(200,100,0)
+		.setFill('assets/otherblock.png')
 		.setSize(cellSize * soft_eng.SCALE, cellSize * soft_eng.SCALE)
 		.setPosition(this.body.GetWorldCenter().x * soft_eng.SCALE, this.body.GetWorldCenter().y * soft_eng.SCALE);
 }
