@@ -238,7 +238,6 @@ soft_eng.Game = function(director, level) {
 		goog.events.listen(scene, 'click', showMenu);
 	}, 500);
 	
-	
 	console.log("Exiting Game loop");
 	console.log("end");
     startGame();

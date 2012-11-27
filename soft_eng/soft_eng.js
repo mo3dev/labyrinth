@@ -80,7 +80,6 @@ soft_eng.loadMainMenu = function() {
 
 // load new game scene
 soft_eng.newGame = function() {
-	//alert('PLAY TIIIME');
     var scene = new soft_eng.Game(soft_eng.director, 0).getScene();
 	soft_eng.director.replaceScene(scene);
 };
@@ -94,9 +93,8 @@ soft_eng.makeButton = function(text) {
 
 // load new help scene
 soft_eng.loadHelpScene = function() {
-    //var scene = new soft_eng.Help();
-	//soft_eng.director.replaceScene(scene);
-	alert('HEEEEEELP');
+    var scene = new soft_eng.Help().getScene();
+	soft_eng.director.replaceScene(scene);
 };
 
 
