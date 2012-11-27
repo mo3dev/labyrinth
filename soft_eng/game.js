@@ -33,13 +33,13 @@ soft_eng.Game = function(director, level) {
 	layer.setPosition(0, 0);
 	scene.appendChild(layer);
 	
-	backgroundSprite = new lime.Sprite().setSize(soft_eng.WIDTH, soft_eng.HEIGHT).setFill('#ffffff').setAnchorPoint(0,0);
+	backgroundSprite = new lime.Sprite().setSize(soft_eng.WIDTH, soft_eng.HEIGHT).setFill('#a5ff00').setAnchorPoint(0,0);
 	layer.appendChild(backgroundSprite);
 
 	//debugging labels
-	var xLabel = new lime.Label('x: ').setAnchorPoint(0, 0).setPosition(20, 20);
-	var yLabel = new lime.Label('y: ').setAnchorPoint(0, 0).setPosition(20, 40);
-	var zLabel = new lime.Label('z: ').setAnchorPoint(0, 0).setPosition(20, 60);
+	var xLabel = new lime.Label('').setAnchorPoint(0, 0).setPosition(20, 20);
+	var yLabel = new lime.Label('').setAnchorPoint(0, 0).setPosition(20, 40);
+	var zLabel = new lime.Label('').setAnchorPoint(0, 0).setPosition(20, 60);
 	scene.appendChild(xLabel);
 	scene.appendChild(yLabel);
 	scene.appendChild(zLabel);
@@ -168,9 +168,9 @@ soft_eng.Game = function(director, level) {
 		
 	// onSuccess: Get a snapshot of the current acceleration
 	var onAccelerometerSuccess = function(acceleration) {
-		xLabel.setText('x: ' + acceleration.x); 
-		yLabel.setText('y: ' + acceleration.y); 
-		zLabel.setText('z: ' + acceleration.z);
+		//xLabel.setText('x: ' + acceleration.x); 
+		//yLabel.setText('y: ' + acceleration.y); 
+		//zLabel.setText('z: ' + acceleration.z);
 		ballAcceleration.x = acceleration.x;
 		ballAcceleration.y = acceleration.y;
 	};
@@ -201,17 +201,17 @@ soft_eng.Game = function(director, level) {
 		'You have solved the maze in: ' + elapsedSeconds + ' seconds.\nTrapped ' + self.timesTrapped + " times.", // message
 		onLevelFinishedAlertConfirm, // callback
 		'Well done!',            	// title
-		'Continue,Quit'          		// actions. this can be 'Continue,Quit,etc..'
+		'Quit,Continue'          		// actions. this can be 'Continue,Quit,etc..'
 		);
 	};
 	// this controls what to do when a button is pressed (could be multiple actions based on the button choice)
 	var onLevelFinishedAlertConfirm = function(button) {
-		if (button == 1) {
+		if (button == 2) {
 			// new level
 			newLevel = new soft_eng.Game(self.director, ++level).getScene();
 			soft_eng.director.replaceScene(newLevel);
 		}
-		if (button == 2) {
+		if (button == 1) {
 			soft_eng.loadMainMenu();
 		}
 	};
@@ -222,13 +222,13 @@ soft_eng.Game = function(director, level) {
 		'Why would you want to quit my game JERK?', // message
 		continueGame, // callback
 		'Game Paused',            	// title
-		'Continue,Quit'          		// actions. this can be 'Continue,Quit,etc..'
+		'Quit,Continue'          		// actions. this can be 'Continue,Quit,etc..'
 		);
 	};
 	
 	var continueGame = function(button) {
 		//this.director.setPaused(false);
-		if (button == 2) {
+		if (button == 1) {
 			//dispose();
 			soft_eng.loadMainMenu();
 		}

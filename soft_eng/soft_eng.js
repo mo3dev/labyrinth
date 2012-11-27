@@ -18,7 +18,7 @@ goog.require('soft_eng.Help');
 
 
 // constants
-soft_eng.SCALE = 30.0; // for box2d (pixels/meter)
+soft_eng.SCALE = 60.0; // for box2d (pixels/meter)
 soft_eng.WIDTH = 320;
 soft_eng.HEIGHT = 450;
 
